@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — Click & Care</title>
+  <meta name="description" content="Technology made simple. Dedicated, privacy-first support that feels human." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Page-scoped enhancements for readability + creative layout */
+    .about-hero { padding: 120px 0 60px; }
+    .about-hero .headline { font-size: clamp(40px, 6vw, 68px); line-height: 1.05; margin: 0 0 14px; }
+    .about-hero .lede { font-size: clamp(18px, 2.2vw, 22px); line-height: 1.75; }
+    .prose-xl { max-width: 900px; margin: 0 auto; }
+    .prose-xl p { font-size: clamp(18px, 2vw, 21px); line-height: 1.8; margin: 0 0 16px; }
+
+    /* New creative section: alternating 2-col layout with visual blocks */
+    .about-alt { padding: 80px 0; background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .about-row { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; margin: 28px 0; }
+    .about-row.reverse { grid-template-columns: .9fr 1.1fr; }
+    .about-row.reverse .about-visual { order: -1; }
+    @media (max-width: 900px){
+      .about-row, .about-row.reverse { grid-template-columns: 1fr; }
+      .about-row.reverse .about-visual { order: initial; }
+    }
+
+    .section-kicker { color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; }
+    .section-title { font-size: clamp(26px, 3.2vw, 38px); margin: 6px 0 10px; }
+    .about-text p { font-size: clamp(18px, 2vw, 21px); line-height: 1.8; color: var(--text); margin: 0; }
+
+    .about-visual {
+      position: relative;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-radius: var(--radius);
+      padding: 24px;
+      min-height: 220px;
+      display: grid;
+      align-content: center;
+      justify-items: start;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .about-visual::after{
+      content: "";
+      position: absolute; right: -60px; bottom: -80px; width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(214,179,91,.22), transparent 60%);
+      filter: blur(30px);
+      pointer-events: none;
+    }
+
+    .icon-badge{
+      width:52px; height:52px; border-radius:14px;
+      display:grid; place-items:center;
+      background: rgba(214,179,91,.15);
+      border:1px solid var(--border);
+      box-shadow: 0 8px 30px rgba(214,179,91,.12);
+    }
+    .icon-badge svg{ width:26px; height:26px; }
+
+    .visual-caption{ color: var(--muted); font-size: 14px; }
+
+    /* Value grid (kept from previous version, tightened spacing) */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px){ .about-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="logo">CC</span>
+        <span class="brand-text">Click &amp; Care</span>
+      </a>
+      <nav class="nav">
+        <button class="nav-toggle" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a class="active" href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="reviews.html">Reviews</a></li>
+        </ul>
+        <div class="nav-cta">
+          <a class="btn btn-ghost" href="contact.html">Contact</a>
+          <a class="btn btn-primary" href="services.html#plans">Get started</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="about-hero">
+    <div class="container">
+      <h1 class="headline">Technology made simple.</h1>
+      <div class="prose-xl">
+        <p class="lede">Click &amp; Care was born from a simple frustration shared by many families, trying to help our loved ones with technology when time, distance, or patience runs short. We created gentle, reliable support that restores confidence for seniors and peace of mind for loved ones.</p>
+        <div class="cta-row" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:12px;">
+          <a class="btn btn-primary btn-lg" href="services.html#plans">See plans</a>
+          <a class="btn btn-ghost btn-lg" href="contact.html">Talk to us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALTERNATING CREATIVE LAYOUT -->
+  <section class="about-alt">
+    <div class="container">
+
+      <!-- Who we are -->
+      <div class="about-row">
+        <div class="about-text">
+          <div class="section-kicker">About</div>
+          <h2 class="section-title">Who we are</h2>
+          <p>Click&amp;Care redefines what tech support feels like. Forget long hold times, confusing ticket numbers, and impersonal service. We pair every client with a dedicated personal technician who understands their devices, preferences, and lifestyle. From discreet on-site visits to proactive system checks, we bring the white-glove experience of concierge services into the world of technology. It’s not about fixing problems when they happen — it’s about making sure they don’t happen in the first place. This is tech support elevated.</p>
+        </div>
+        <div class="about-visual">
+          <div class="icon-badge" aria-hidden="true">
+            <!-- handshake icon -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M8 11l2 2a3 3 0 004 0l2-2m-8 0l-2-2a2.828 2.828 0 010-4l1-1a2.828 2.828 0 014 0l1 1 1-1a2.828 2.828 0 014 0l1 1a2.828 2.828 0 010 4l-2 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <strong>Dedicated personal technician</strong>
+          <div class="visual-caption">A single expert who knows your setup — no scripts, no handoffs.</div>
+        </div>
+      </div>
+
+      <!-- Our mission -->
+      <div class="about-row reverse">
+        <div class="about-text">
+          <div class="section-kicker">Purpose</div>
+          <h2 class="section-title">Our mission</h2>
+          <p>Most tech support companies focus on speed — we focus on care. At Click&amp;Care, every client is treated like family, not a ticket in a queue. We combine human patience with cutting-edge expertise, offering personalized guidance that simplifies everyday technology. Whether it’s helping with a new smartphone, setting up smart home devices, or protecting your privacy online, our approach is calm, respectful, and easy to follow. We’re not another call-center; we’re your trusted technology partner.</p>
+        </div>
+        <div class="about-visual">
+          <div class="icon-badge" aria-hidden="true">
+            <!-- heart icon -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 21s-6.5-4.35-9-7.5C1.1 11.2 2 8 5 8c2 0 3 1 4 2 1-1 2-2 4-2 3 0 3.9 3.2 2 5.5-2.5 3.15-9 7.5-9 7.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <strong>Care over speed</strong>
+          <div class="visual-caption">Calm, respectful guidance that sticks — at your pace.</div>
+        </div>
+      </div>
+
+      <!-- Our vision -->
+      <div class="about-row">
+        <div class="about-text">
+          <div class="section-kicker">Future</div>
+          <h2 class="section-title">Our vision</h2>
+          <p>Tech support shouldn’t feel outdated — or robotic. Click&amp;Care is built on a smarter model: proactive, personalized, and privacy-first. We assign each member a dedicated technician who knows their setup, keeps systems running smoothly, and checks in regularly — just like having your own IT department at home. No transfers. No scripts. No waiting. Just real people who know your tech and genuinely care about keeping it simple.</p>
+        </div>
+        <div class="about-visual">
+          <div class="icon-badge" aria-hidden="true">
+            <!-- shield/star icon -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 3l7 4v5c0 5-4 8-7 9-3-1-7-4-7-9V7l7-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M12 8l1.2 2.4 2.6.38-1.9 1.86.45 2.62L12 14.2 9.65 15.3l.45-2.62-1.9-1.86 2.6-.38L12 8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <strong>Proactive & private</strong>
+          <div class="visual-caption">Privacy-first, check-ins, and smooth systems — always on.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- VALUE STRIP (kept) -->
+  <section class="section">
+    <div class="container section-head">
+      <h2 class="title">Why families choose Click &amp; Care</h2>
+      <p class="lede">White-glove help, without the hassle.</p>
+    </div>
+    <div class="container about-grid">
+      <article class="card" data-reveal>
+        <h3>Dedicated technician</h3>
+        <p class="muted">One person who knows your setup — no repeating your story.</p>
+      </article>
+      <article class="card" data-reveal>
+        <h3>Proactive care</h3>
+        <p class="muted">Check-ins and updates so issues don’t pile up.</p>
+      </article>
+      <article class="card" data-reveal>
+        <h3>Privacy-first</h3>
+        <p class="muted">Credentials stay in your password manager — never on paper.</p>
+      </article>
+      <article class="card" data-reveal>
+        <h3>Respect built-in</h3>
+        <p class="muted">Calm, clear explanations at your pace — never rushed.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section alt">
+    <div class="container section-head">
+      <h2 class="title">Ready for stress-free tech?</h2>
+      <p class="lede">We’ll match you with your personal technician.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:12px;">
+        <a class="btn btn-primary btn-lg" href="contact.html">Request a visit</a>
+        <a class="btn btn-ghost btn-lg" href="services.html#plans">Compare plans</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="foot-brand">
+        <span class="logo">CC</span>
+        <strong>Click &amp; Care</strong>
+        <p>Boston-based, human, local.</p>
+      </div>
+
+      <nav class="foot-links">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="faq.html">FAQ</a>
+        <a href="blog.html">Blog</a>
+      </nav>
+
+      <nav class="foot-links">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Licenses</a>
+      </nav>
+
+      <div class="foot-social">
+        <h4>Get in touch</h4>
+        <p class="muted">(857) 408-4904<br>
+        <a href="mailto:clickncareservice@gmail.com">clickncareservice@gmail.com</a></p>
+        <div class="social-row">
+          <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a>
+          <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
+        </div>
+        <a class="btn btn-primary" style="margin-top:10px" href="tel:+18574084904">Call Us</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      © <span id="year"></span> Click &amp; Care. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
