@@ -1,83 +1,131 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Client Login — Click & Care</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css"/>
+  <script defer src="login.js"></script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html">
-        <span class="logo">CC</span>
-        <span class="brand-text">Click &amp; Care</span>
-      </a>
-      <nav class="nav">
-        <button class="nav-toggle" aria-label="Open menu">
-          <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-list">
-          <li><a  href="index.html">Home</a></li>
-          <li><a  href="about.html">About</a></li>
-          <li><a  href="services.html">Services</a></li>
-          <li><a  href="faq.html">FAQ</a></li>
-          <li><a  href="blog.html">Blog</a></li>
-          <li><a  href="reviews.html">Reviews</a></li>
-        </ul>
-        <div class="nav-cta">
-          <a class="btn btn-ghost" href="contact.html">Contact</a>
-          <a class="btn btn-primary" href="services.html#plans">Get started</a>
-        </div>
-      </nav>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html">
+      <span class="logo">CC</span>
+      <span class="brand-text">Click &amp; Care</span>
+    </a>
+    <nav class="nav">
+      <button class="nav-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="reviews.html">Reviews</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a class="btn btn-ghost" href="contact.html">Contact</a>
+        <a class="btn btn-primary" href="services.html#plans">Get started</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<section class="section" style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
+  <div class="login-container" style="max-width:400px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px;box-shadow:var(--shadow);">
+    <div class="login-header" style="text-align:center;margin-bottom:28px;">
+      <div style="display:grid;place-items:center;margin-bottom:10px;">
+        <div class="logo" style="width:50px;height:50px;border-radius:16px;">CC</div>
+      </div>
+      <h2>Welcome back</h2>
+      <p class="muted">Please sign in to continue</p>
     </div>
-  </header>
-<section class="section">
-  <div class="container section-head">
-    <h1 class="title">Client Login</h1>
-    <p class="lede">Portal coming soon.</p>
+
+    <form id="loginForm">
+      <div class="form-group" style="margin-bottom:18px;">
+        <label for="email" class="muted" style="display:block;margin-bottom:6px;">Email address</label>
+        <input class="input" type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+        <span class="error-message" id="emailError" style="color:#f88;font-size:.9em;"></span>
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label for="password" class="muted" style="display:block;margin-bottom:6px;">Password</label>
+        <input class="input" type="password" id="password" name="password" required placeholder="••••••••">
+        <span class="error-message" id="passwordError" style="color:#f88;font-size:.9em;"></span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <label style="display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="remember"> <span class="muted">Remember me</span>
+        </label>
+        <a href="#" class="muted" style="font-size:.9em;">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary full" id="loginButton">Sign In</button>
+    </form>
+
+    <div class="divider" style="display:flex;align-items:center;gap:10px;margin:24px 0;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span class="muted" style="font-size:.9em;">or continue with</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <div class="social-login" style="display:flex;justify-content:center;gap:10px;">
+      <button class="btn btn-ghost" type="button">G</button>
+      <button class="btn btn-ghost" type="button">X</button>
+      <button class="btn btn-ghost" type="button">in</button>
+    </div>
+
+    <div class="signup-link" style="text-align:center;margin-top:20px;">
+      <p>Don't have an account? <a href="#" class="muted" style="color:var(--brand);">Sign up</a></p>
+    </div>
+
+    <div id="successMessage" style="display:none;text-align:center;margin-top:24px;">
+      <div class="logo" style="margin-inline:auto;width:50px;height:50px;border-radius:16px;display:grid;place-items:center;">✓</div>
+      <h3>Success!</h3>
+      <p class="muted">Redirecting to your dashboard...</p>
+    </div>
   </div>
 </section>
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div class="foot-brand">
-        <span class="logo">CC</span>
-        <strong>Click &amp; Care</strong>
-        <p>Boston-based, human, local.</p>
-      </div>
 
-      <nav class="foot-links">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="services.html">Services</a>
-        <a href="faq.html">FAQ</a>
-        <a href="blog.html">Blog</a>
-      </nav>
-
-      <nav class="foot-links">
-        <h4>Legal</h4>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Licenses</a>
-      </nav>
-
-      <div class="foot-social">
-        <h4>Get in touch</h4>
-        <p class="muted">(857) 408-4904<br>
-        <a href="mailto:clickncareservice@gmail.com">clickncareservice@gmail.com</a></p>
-        <div class="social-row">
-          <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a>
-          <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
-        </div>
-        <a class="btn btn-primary" style="margin-top:10px" href="tel:+18574084904">Call Us</a>
-      </div>
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="foot-brand">
+      <span class="logo">CC</span>
+      <strong>Click &amp; Care</strong>
+      <p>Boston-based, human, local.</p>
     </div>
 
-    <div class="footer-bottom">
-      © <span id="year"></span> Click &amp; Care. All rights reserved.
-    </div>
-  </footer>
+    <nav class="foot-links">
+      <h4>Company</h4>
+      <a href="about.html">About</a>
+      <a href="services.html">Services</a>
+      <a href="faq.html">FAQ</a>
+      <a href="blog.html">Blog</a>
+    </nav>
 
-<script src="app.js"></script>
+    <nav class="foot-links">
+      <h4>Legal</h4>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Licenses</a>
+    </nav>
+
+    <div class="foot-social">
+      <h4>Get in touch</h4>
+      <p class="muted">(857) 408-4904<br>
+      <a href="mailto:clickncareservice@gmail.com">clickncareservice@gmail.com</a></p>
+      <div class="social-row">
+        <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a>
+        <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+      <a class="btn btn-primary" style="margin-top:10px" href="tel:+18574084904">Call Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © <span id="year"></span> Click &amp; Care. All rights reserved.
+  </div>
+</footer>
 </body>
 </html>
