@@ -4,13 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Blog — Click & Care</title>
-  <meta name="description" content="Updates, workshops and helpful senior tech guides." />
+  <meta name="description" content="Updates, workshops, and helpful senior tech guides from Click & Care." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
+  <!-- ===== HEADER ===== -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="index.html">
@@ -18,52 +20,175 @@
         <span class="brand-text">Click &amp; Care</span>
       </a>
       <nav class="nav">
-        <button class="nav-toggle" aria-label="Open menu">
-          <span></span><span></span><span></span>
-        </button>
+        <button class="nav-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
         <ul class="nav-list">
-          <li><a  href="index.html">Home</a></li>
-          <li><a  href="about.html">About</a></li>
-          <li><a  href="services.html">Services</a></li>
-          <li><a  href="faq.html">FAQ</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="faq.html">FAQ</a></li>
           <li><a class="active" href="blog.html">Blog</a></li>
-          <li><a  href="reviews.html">Reviews</a></li>
+          <li><a href="reviews.html">Reviews</a></li>
         </ul>
         <div class="nav-cta">
           <a class="btn btn-ghost" href="contact.html">Contact</a>
-          <a class="btn btn-primary" href="services.html#plans">Get started</a>
+          <a class="btn btn-primary" href="client.html#login">Client Login</a>
         </div>
       </nav>
     </div>
   </header>
 
-<section class="section">
-  <div class="container section-head">
-    <h1 class="title">Updates &amp; Tips</h1>
-    <p class="lede">Articles, workshops, and helpful senior tech guides will appear here.</p>
-  </div>
-  <div class="container cards">
-    <a class="card" href="https://www.experian.com/blogs/ask-experian/the-latest-scams-you-need-to-aware-of/" target="_blank" rel="noopener">
-      <h3>🧠 How to Stay Scam‑Safe in 2025</h3>
-      <p class="muted">Learn simple ways to protect yourself from phone and email scams.</p>
-      <span class="link">Read more →</span>
-    </a>
-    <a class="card" href="https://www.wired.com/story/how-to-make-your-wifi-better-faster/" target="_blank" rel="noopener">
-      <h3>💡 Wi‑Fi Fixes You Can Do Yourself</h3>
-      <p class="muted">Try these quick tips before scheduling a visit with Click &amp; Care.</p>
-      <span class="link">Read more →</span>
-    </a>
-  </div>
-</section>
+  <!-- ===== BLOG SECTION ===== -->
+  <section class="blog-split">
+    <div class="container">
+      <div class="section-head">
+        <h1 class="title gradient-text">Updates &amp; Tips</h1>
+        <p class="lede">Practical tech guidance, security insights, and stories from Click & Care.</p>
+      </div>
 
-   <footer class="site-footer">
+      <div class="blog-grid">
+        <!-- === Left: Articles === -->
+        <div class="banners">
+          <a class="banner-card" href="https://www.experian.com/blogs/ask-experian/the-latest-scams-you-need-to-aware-of/" target="_blank" rel="noopener">
+            <span class="bc-badge">Safety</span>
+            <h3>🧠 How to Stay Scam-Safe in 2025</h3>
+            <p>Learn the latest scam tactics and the easiest ways to protect yourself.</p>
+          </a>
+
+          <a class="banner-card" href="https://www.wired.com/story/how-to-make-your-wifi-better-faster/" target="_blank" rel="noopener">
+            <span class="bc-badge">Tech Tips</span>
+            <h3>💡 Wi-Fi Fixes You Can Do Yourself</h3>
+            <p>Before booking a visit, try these quick steps to improve your home connection.</p>
+          </a>
+
+          <a class="banner-card" href="https://www.consumer.ftc.gov/articles/what-do-if-youre-scammed" target="_blank" rel="noopener">
+            <span class="bc-badge">Guides</span>
+            <h3>🔐 What to Do If You’re Scammed</h3>
+            <p>Step-by-step actions to recover and report scams safely.</p>
+          </a>
+        </div>
+
+        <!-- === Right: Social Sidebar === -->
+<!-- === Right: Social Sidebar === -->
+<aside class="social">
+
+  <style>
+    /* ===== Inline Social Widget Styling ===== */
+    .social {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      background: transparent;
+      padding: 10px;
+    }
+
+    .widget-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .widget-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    }
+
+    .w-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .w-head img {
+      width: 36px;
+      height: 36px;
+      transition: all 0.3s ease;
+      border-radius: 50%;
+      cursor: pointer;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+    }
+
+    .w-head img:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 10px #1da1f2);
+    }
+
+    .w-head h4 {
+      font-size: 1.1rem;
+      color: var(--text-color, #fff);
+      margin: 0;
+    }
+
+    .w-body {
+      margin-top: 10px;
+    }
+
+    .social p.marketing {
+      font-size: 0.9rem;
+      color: var(--muted-color, #ccc);
+      margin: 0 0 10px;
+    }
+  </style>
+
+  <!-- ===== Twitter Widget ===== -->
+  <div class="widget-card">
+    <div class="w-head">
+      <a href="https://twitter.com/clickncarehelp" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter">
+      </a>
+      <h4>Follow Us on Twitter</h4>
+    </div>
+    <p class="marketing">Join our community for quick wellness tips and daily updates!</p>
+    <div class="w-body">
+      <a class="twitter-timeline"
+         data-width="100%"
+         data-height="480"
+         data-theme="dark"
+         href="https://twitter.com/clickncarehelp?ref_src=twsrc%5Etfw">
+         Tweets by Click & Care
+      </a>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
+  </div>
+
+  <!-- ===== Instagram Widget ===== -->
+  <div class="widget-card">
+    <div class="w-head">
+      <a href="https://www.instagram.com/clickncareservice/" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
+      </a>
+      <h4>Follow Us on Instagram</h4>
+    </div>
+    <p class="marketing">See real stories and behind-the-scenes from Click & Care.</p>
+    <div class="w-body">
+      <!-- Replace this post URL with any public Click & Care post -->
+      <blockquote 
+        class="instagram-media"
+        data-instgrm-permalink="https://www.instagram.com/clickncareservice/"
+        data-instgrm-version="14"
+        style="background:transparent; border:0; margin:auto; max-width:350px;">
+      </blockquote>
+      <script async src="//www.instagram.com/embed.js"></script>
+    </div>
+  </div>
+
+</aside>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
     <div class="container footer-grid">
       <div class="foot-brand">
         <span class="logo">CC</span>
         <strong>Click &amp; Care</strong>
         <p>Boston-based, human, local.</p>
       </div>
-
       <nav class="foot-links">
         <h4>Company</h4>
         <a href="about.html">About</a>
@@ -71,31 +196,37 @@
         <a href="faq.html">FAQ</a>
         <a href="blog.html">Blog</a>
       </nav>
-
       <nav class="foot-links">
         <h4>Legal</h4>
         <a href="#">Privacy</a>
         <a href="#">Terms</a>
         <a href="#">Licenses</a>
       </nav>
-
       <div class="foot-social">
         <h4>Get in touch</h4>
         <p class="muted">(857) 408-4904<br>
         <a href="mailto:clickncareservice@gmail.com">clickncareservice@gmail.com</a></p>
         <div class="social-row">
-          <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a>
-          <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://x.com/clickncarehelp" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter" width="26">
+          </a>
+          <a href="https://www.instagram.com/clickncareservice/" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="26">
+          </a>
         </div>
-        <a class="btn btn-primary" style="margin-top:10px" href="tel:+18574084904">Call Us</a>
       </div>
     </div>
-
     <div class="footer-bottom">
       © <span id="year"></span> Click &amp; Care. All rights reserved.
     </div>
   </footer>
 
-<script src="app.js"></script>
+  <!-- Scripts -->
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <script async src="//www.instagram.com/embed.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
