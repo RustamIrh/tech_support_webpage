@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Dashboard — Click & Care</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* === DASHBOARD STYLE (inherits your main theme) === */
+    body {
+      background: var(--background, #0f0f0f);
+      color: var(--text, #fff);
+    }
+
+    .dashboard-container {
+      display: flex;
+      gap: 30px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+
+    .sidebar {
+      flex: 1 1 250px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .sidebar h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: var(--brand, #1da1f2);
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 10px 0;
+      color: var(--text, #fff);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar a:hover {
+      color: var(--brand);
+      transform: translateX(4px);
+    }
+
+    .main-content {
+      flex: 3 1 700px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(6px);
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-header h2 {
+      margin: 0;
+      color: var(--brand, #1da1f2);
+    }
+
+    .logout-btn {
+      background: var(--brand, #1da1f2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #0f80d0;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--brand, #1da1f2);
+    }
+
+    .appointment-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 10px;
+    }
+
+    .status {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #8cf58c;
+    }
+
+    .plan-status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .contact-support {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .contact-support a {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .contact-support a:hover {
+      background: #0f80d0;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="logo">CC</span>
+        <span class="brand-text">Click &amp; Care</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="contact.html">Support</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h3>Client Menu</h3>
+      <a href="#appointments">My Appointments</a>
+      <a href="#service-plan">My Service Plan</a>
+      <a href="#support">Contact Support</a>
+      <a href="client.html" id="logoutLink">Log Out</a>
+    </aside>
+
+    <!-- Main Dashboard Content -->
+    <section class="main-content">
+      <div class="dashboard-header">
+        <h2>Welcome, Client</h2>
+        <button class="logout-btn" onclick="logout()">Log Out</button>
+      </div>
+
+      <!-- Appointments -->
+      <div id="appointments" class="card">
+        <h3>Upcoming Appointments</h3>
+        <div class="appointment-item">
+          <span>Device Setup — Oct 15, 2025</span>
+          <span class="status">Confirmed</span>
+        </div>
+        <div class="appointment-item">
+          <span>System Check — Oct 25, 2025</span>
+          <span class="status">Pending</span>
+        </div>
+      </div>
+
+      <!-- Service Plan -->
+      <div id="service-plan" class="card">
+        <h3>Service Plan Details</h3>
+        <p><strong>Plan:</strong> Premium Support</p>
+        <p><strong>Renewal Date:</strong> Nov 12, 2025</p>
+        <div class="plan-status">
+          <p>Status: <span style="color:#8cf58c;">Active</span></p>
+        </div>
+      </div>
+
+      <!-- Contact Support -->
+      <div id="support" class="card contact-support">
+        <h3>Need Assistance?</h3>
+        <p>Our tech specialists are here to help 24/7.</p>
+        <a href="contact.html">Contact Support</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="foot-brand">
+        <span class="logo">CC</span>
+        <strong>Click &amp; Care</strong>
+        <p>Boston-based, human, local.</p>
+      </div>
+      <div class="foot-social">
+        <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a> |
+        <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © <span id="year"></span> Click &amp; Care. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function logout() {
+      alert("You have been logged out.");
+      window.location.href = "client.html";
+    }
+  </script>
+</body>
+</html>
