@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Worker Login — Click & Care</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script defer src="worker-dashboard.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html">
+      <span class="logo">CC</span>
+      <span class="brand-text">Click &amp; Care</span>
+    </a>
+    <nav class="nav">
+      <button class="nav-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="section" style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
+  <div class="login-container" style="max-width:400px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px;box-shadow:var(--shadow);">
+    <div class="login-header" style="text-align:center;margin-bottom:28px;">
+      <div style="display:grid;place-items:center;margin-bottom:10px;">
+        <div class="logo" style="width:50px;height:50px;border-radius:16px;background-color:var(--brand);color:white;display:grid;place-items:center;">WC</div>
+      </div>
+      <h2>Worker Portal</h2>
+      <p class="muted">Restricted access for Click & Care technicians</p>
+    </div>
+
+    <form id="workerLoginForm">
+      <div class="form-group" style="margin-bottom:18px;">
+        <label for="workerEmail" class="muted" style="display:block;margin-bottom:6px;">Company Email</label>
+        <input class="input" type="email" id="workerEmail" name="email" required autocomplete="email" placeholder="name@clickncare.com">
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label for="workerPassword" class="muted" style="display:block;margin-bottom:6px;">Password</label>
+        <input class="input" type="password" id="workerPassword" name="password" required placeholder="••••••••">
+      </div>
+
+      <button type="submit" class="btn btn-primary full" id="workerLoginButton">Sign In</button>
+    </form>
+
+    <div class="divider" style="display:flex;align-items:center;gap:10px;margin:24px 0;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span class="muted" style="font-size:.9em;">or</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="client.html" class="btn btn-ghost full">Client Login</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="foot-brand">
+      <span class="logo">CC</span>
+      <strong>Click &amp; Care</strong>
+      <p>Boston-based, human, local.</p>
+    </div>
+
+    <div class="foot-social">
+      <h4>Get in touch</h4>
+      <p class="muted">(857) 408-4904<br>
+      <a href="mailto:clickncareservice@gmail.com">clickncareservice@gmail.com</a></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © <span id="year"></span> Click &amp; Care. All rights reserved.
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import Firebase functions
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
+    authDomain: "click-and-care-client-portal.firebaseapp.com",
+    projectId: "click-and-care-client-portal",
+    storageBucket: "click-and-care-client-portal.firebasestorage.app",
+    messagingSenderId: "469706454671",
+    appId: "1:469706454671:web:663408e0c167884126e2fa",
+    measurementId: "G-G1NXSLG0VK"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+
+  // Handle login
+  const form = document.getElementById("workerLoginForm");
+  const loginBtn = document.getElementById("workerLoginButton");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in...";
+
+    const email = document.getElementById("workerEmail").value.trim();
+    const password = document.getElementById("workerPassword").value;
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Optional: only allow emails ending with @clickncare.com
+      if (!email.endsWith("@clickncare.com")) {
+        alert("Access denied: only company emails are allowed.");
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Sign In";
+        return;
+      }
+
+      // Redirect to worker dashboard
+      window.location.href = "worker-dashboard.html";
+    } catch (error) {
+      alert("Login failed: " + error.message);
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Sign In";
+    }
+  });
+</script>
+
+</body>
+</html>
