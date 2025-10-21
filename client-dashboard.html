@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Client Dashboard — Click & Care</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="logo">CC</span>
+        <span class="brand-text">Click &amp; Care</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a class="active" href="client-dashboard.html">Dashboard</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container" style="max-width:800px">
+      <h1>Welcome, <span id="clientName"></span></h1>
+      <div class="card">
+        <p><strong>Plan:</strong> <span id="clientPlan"></span></p>
+        <p><strong>Technician:</strong> <span id="clientTech"></span></p>
+        <p><strong>Visits Left:</strong> <span id="visitsLeft"></span></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      © <span id="year"></span> Click & Care. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+
+<!-- Firebase Connection -->
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
+    authDomain: "click-and-care-client-portal.firebaseapp.com",
+    projectId: "click-and-care-client-portal",
+    storageBucket: "click-and-care-client-portal.firebasestorage.app",
+    messagingSenderId: "469706454671",
+    appId: "1:469706454671:web:663408e0c167884126e2fa",
+    measurementId: "G-G1NXSLG0VK"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // When client logs in
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "client-login.html"; // redirect if not logged in
+      return;
+    }
+
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      document.getElementById("clientName").textContent = data.name;
+      document.getElementById("clientPlan").textContent = data.plan;
+      document.getElementById("clientTech").textContent = data.technician;
+      document.getElementById("visitsLeft").textContent = data.visitsLeft;
+    } else {
+      console.log("No user data found!");
+    }
+  });
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
