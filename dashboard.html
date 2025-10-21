@@ -1,235 +1,386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Client Dashboard — Click & Care</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    /* === DASHBOARD STYLE (inherits your main theme) === */
+    /* === Dashboard Theme Integration === */
     body {
-      background: var(--background, #0f0f0f);
-      color: var(--text, #fff);
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     }
 
     .dashboard-container {
-      display: flex;
-      gap: 30px;
-      padding: 40px;
-      max-width: 1200px;
-      margin: 0 auto;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+      background: radial-gradient(900px 600px at 10% -10%, rgba(214,179,91,0.05), transparent 60%),
+                  radial-gradient(1000px 500px at 90% 10%, rgba(240,210,123,0.05), transparent 60%),
+                  var(--bg);
     }
 
     .sidebar {
-      flex: 1 1 250px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 16px;
-      padding: 20px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      background: linear-gradient(180deg, rgba(20,20,25,.95), rgba(15,15,22,.95));
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2rem 1rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
     }
 
-    .sidebar h3 {
-      margin-top: 0;
-      margin-bottom: 12px;
-      color: var(--brand, #1da1f2);
+    .sidebar-header h3 {
+      color: var(--brand);
+      text-align: center;
+      font-weight: 800;
+      margin-bottom: 2rem;
     }
 
-    .sidebar a {
-      display: block;
-      padding: 10px 0;
-      color: var(--text, #fff);
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--muted);
       text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
       transition: all 0.2s ease;
     }
 
-    .sidebar a:hover {
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+      background: rgba(214,179,91,0.12);
       color: var(--brand);
-      transform: translateX(4px);
+    }
+
+    .sidebar-nav a i {
+      font-size: 1.2rem;
     }
 
     .main-content {
-      flex: 3 1 700px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      backdrop-filter: blur(6px);
+      padding: 2rem 2.5rem;
+      background: var(--bg-alt);
     }
 
     .dashboard-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 2rem;
     }
 
-    .dashboard-header h2 {
-      margin: 0;
-      color: var(--brand, #1da1f2);
+    .dashboard-header h1 {
+      font-weight: 700;
+      font-size: 1.75rem;
+      color: var(--brand);
     }
 
-    .logout-btn {
-      background: var(--brand, #1da1f2);
-      color: #fff;
+    .welcome-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+
+    .welcome-card h2 {
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: .3rem;
+    }
+
+    .welcome-card p {
+      color: var(--muted);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #111;
       border: none;
-      border-radius: 8px;
-      padding: 8px 16px;
-      cursor: pointer;
       font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .logout-btn:hover {
-      background: #0f80d0;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.06);
       border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      transition: 0.2s ease;
     }
 
-    .card h3 {
-      margin-top: 0;
-      color: var(--brand, #1da1f2);
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(214,179,91,0.25);
     }
 
-    .appointment-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 10px;
+    .btn-outline-primary {
+      border: 1px solid var(--brand);
+      color: var(--brand);
+      background: transparent;
     }
 
-    .status {
-      font-size: 0.9em;
-      font-weight: 600;
-      color: #8cf58c;
+    .btn-outline-primary:hover {
+      background: rgba(214,179,91,0.15);
     }
 
-    .plan-status {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.05);
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
     }
 
-    .contact-support {
-      text-align: center;
-      margin-top: 20px;
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
     }
 
-    .contact-support a {
-      display: inline-block;
-      padding: 10px 20px;
-      border-radius: 8px;
-      background: var(--brand);
-      color: #fff;
-      text-decoration: none;
-      transition: 0.3s;
+    .stat-card h3 {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
     }
 
-    .contact-support a:hover {
-      background: #0f80d0;
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    table.appointments-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .appointments-table th {
+      background: rgba(214,179,91,0.1);
+      color: var(--brand);
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .appointments-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-success {
+      background: rgba(40,167,69,0.15);
+      color: #4ade80;
+    }
+
+    .badge-warning {
+      background: rgba(255,193,7,0.1);
+      color: #facc15;
+    }
+
+    .badge-primary {
+      background: rgba(214,179,91,0.12);
+      color: var(--brand);
+    }
+
+    @media (max-width: 800px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: relative;
+        height: auto;
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
-<body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html">
-        <span class="logo">CC</span>
-        <span class="brand-text">Click &amp; Care</span>
-      </a>
-      <nav class="nav">
-        <ul class="nav-list">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="services.html">Services</a></li>
-          <li><a href="contact.html">Support</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
 
-  <main class="dashboard-container">
-    <!-- Sidebar -->
+<body>
+  <div class="dashboard-container">
     <aside class="sidebar">
-      <h3>Client Menu</h3>
-      <a href="#appointments">My Appointments</a>
-      <a href="#service-plan">My Service Plan</a>
-      <a href="#support">Contact Support</a>
-      <a href="client.html" id="logoutLink">Log Out</a>
+      <div>
+        <div class="sidebar-header">
+          <h3>Click & Care</h3>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#" class="active"><i class="mdi mdi-view-dashboard"></i> Dashboard</a>
+          <a href="#"><i class="mdi mdi-calendar-clock"></i> Appointments</a>
+          <a href="#"><i class="mdi mdi-account-circle"></i> My Account</a>
+          <a href="#"><i class="mdi mdi-credit-card"></i> Billing</a>
+          <a href="#"><i class="mdi mdi-headset"></i> Support</a>
+        </nav>
+      </div>
+      <a href="client.html" id="logoutLink" class="sidebar-nav mt-4">
+        <i class="mdi mdi-logout"></i> Log Out
+      </a>
     </aside>
 
-    <!-- Main Dashboard Content -->
-    <section class="main-content">
+    <main class="main-content">
       <div class="dashboard-header">
-        <h2>Welcome, Client</h2>
-        <button class="logout-btn" onclick="logout()">Log Out</button>
-      </div>
-
-      <!-- Appointments -->
-      <div id="appointments" class="card">
-        <h3>Upcoming Appointments</h3>
-        <div class="appointment-item">
-          <span>Device Setup — Oct 15, 2025</span>
-          <span class="status">Confirmed</span>
-        </div>
-        <div class="appointment-item">
-          <span>System Check — Oct 25, 2025</span>
-          <span class="status">Pending</span>
+        <h1>Welcome back, <span id="userName">Client</span></h1>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary">
+            <i class="mdi mdi-bell-outline"></i>
+          </button>
+          <button class="btn btn-primary" id="newAppointmentBtn">
+            <i class="mdi mdi-plus"></i> New Appointment
+          </button>
         </div>
       </div>
 
-      <!-- Service Plan -->
-      <div id="service-plan" class="card">
-        <h3>Service Plan Details</h3>
-        <p><strong>Plan:</strong> Premium Support</p>
-        <p><strong>Renewal Date:</strong> Nov 12, 2025</p>
-        <div class="plan-status">
-          <p>Status: <span style="color:#8cf58c;">Active</span></p>
+      <div class="welcome-card">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h2>Your Tech Support Overview</h2>
+            <p class="text-muted">Here’s what’s happening with your services today</p>
+          </div>
+          <button class="btn btn-outline-primary">View All</button>
         </div>
       </div>
 
-      <!-- Contact Support -->
-      <div id="support" class="card contact-support">
-        <h3>Need Assistance?</h3>
-        <p>Our tech specialists are here to help 24/7.</p>
-        <a href="contact.html">Contact Support</a>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Active Support Plan</h3>
+          <div class="value">Premium</div>
+        </div>
+        <div class="stat-card">
+          <h3>Upcoming Appointments</h3>
+          <div class="value">2</div>
+        </div>
+        <div class="stat-card">
+          <h3>Support Tickets</h3>
+          <div class="value">1 Open</div>
+        </div>
       </div>
-    </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div class="foot-brand">
-        <span class="logo">CC</span>
-        <strong>Click &amp; Care</strong>
-        <p>Boston-based, human, local.</p>
-      </div>
-      <div class="foot-social">
-        <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a> |
-        <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      © <span id="year"></span> Click &amp; Care. All rights reserved.
-    </div>
-  </footer>
+      <h3 class="mb-3" style="color:var(--brand)">Recent Appointments</h3>
+      <table class="appointments-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Date</th>
+            <th>Technician</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Device Setup</td>
+            <td>Oct 15, 2025</td>
+            <td>Alex Johnson</td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td><button class="btn btn-sm btn-outline-primary">Details</button></td>
+          </tr>
+          <tr>
+            <td>System Check</td>
+            <td>Oct 25, 2025</td>
+            <td>Sarah Williams</td>
+            <td><span class="badge badge-primary">Scheduled</span></td>
+            <td><button class="btn btn-sm btn-outline-primary">Reschedule</button></td>
+          </tr>
+          <tr>
+            <td>Network Issue</td>
+            <td>Nov 5, 2025</td>
+            <td>Michael Brown</td>
+            <td><span class="badge badge-warning">Pending</span></td>
+            <td><button class="btn btn-sm btn-outline-primary">Details</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+    document.addEventListener('DOMContentLoaded', function() {
+      // === Display client name ===
+      const storedName = localStorage.getItem('clientName');
+      const userNameSpan = document.getElementById('userName');
+      if (storedName && storedName.trim() !== '') {
+        userNameSpan.textContent = storedName;
+      } else {
+        userNameSpan.textContent = 'Client';
+      }
 
-    function logout() {
-      alert("You have been logged out.");
-      window.location.href = "client.html";
-    }
+      // === Logout ===
+      document.getElementById('logoutLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Log out?',
+          text: 'Are you sure you want to log out?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#d6b35b',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, log out'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem('clientName');
+            window.location.href = 'client.html';
+          }
+        });
+      });
+
+      // === New Appointment Modal ===
+      document.getElementById('newAppointmentBtn').addEventListener('click', function() {
+        Swal.fire({
+          title: 'New Appointment',
+          html: `
+            <form id="appointmentForm">
+              <div class="mb-3 text-start">
+                <label class="form-label">Service Type</label>
+                <select class="form-select">
+                  <option>Device Setup</option>
+                  <option>System Check</option>
+                  <option>Network Setup</option>
+                  <option>Software Support</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="mb-3 text-start">
+                <label class="form-label">Preferred Date</label>
+                <input type="date" class="form-control">
+              </div>
+              <div class="mb-3 text-start">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" rows="3"></textarea>
+              </div>
+            </form>
+          `,
+          showCancelButton: true,
+          confirmButtonText: 'Schedule',
+          confirmButtonColor: '#d6b35b',
+          showLoaderOnConfirm: true,
+          preConfirm: () => new Promise(resolve => setTimeout(resolve, 1200))
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire('Scheduled!', 'Your appointment has been added.', 'success');
+          }
+        });
+      });
+    });
   </script>
 </body>
 </html>
