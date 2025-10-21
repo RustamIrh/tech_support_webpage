@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Worker Dashboard — Click & Care</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* === WORKER DASHBOARD STYLE === */
+    body { background: var(--background); color: var(--text); }
+    .dashboard-container { display: grid; grid-template-columns: 250px 1fr; gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 160px); }
+    .sidebar { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+    .sidebar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .worker-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--brand); color: white; display: grid; place-items: center; font-weight: bold; }
+    .sidebar-menu { display: flex; flex-direction: column; gap: 8px; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text); text-decoration: none; transition: all 0.2s ease; }
+    .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(var(--brand-rgb), 0.1); color: var(--brand); }
+    .main-content { display: grid; gap: 20px; grid-template-rows: auto 1fr; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
+    .stat-card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+    .stat-card h3 { margin-top: 0; color: var(--brand); font-size: 1.1rem; }
+    .stat-value { font-size: 2rem; font-weight: 700; margin: 10px 0; }
+    .appointments-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .appointments-table th, .appointments-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+    .appointments-table th { background: rgba(var(--brand-rgb), 0.1); color: var(--brand); }
+    .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-confirmed { background: #d4edda; color: #155724; }
+    .status-completed { background: #d1ecf1; color: #0c5460; }
+    .btn { padding: 8px 16px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+    .btn-primary { background: var(--brand); color: white; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: rgba(var(--brand-rgb), 0.1); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="logo">CC</span>
+        <span class="brand-text">Click &amp; Care</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="worker-dashboard.html">Dashboard</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="worker-avatar" id="workerAvatar">WC</div>
+        <div>
+          <h4 id="workerName">Loading...</h4>
+          <small class="muted" id="workerRole">Technician</small>
+        </div>
+      </div>
+      <nav class="sidebar-menu">
+        <a href="#" class="active"><i data-feather="home"></i> Dashboard</a>
+        <a href="#"><i data-feather="calendar"></i> Appointments</a>
+        <a href="#"><i data-feather="users"></i> Clients</a>
+        <a href="#"><i data-feather="settings"></i> Settings</a>
+        <a href="#" id="logoutLink"><i data-feather="log-out"></i> Log Out</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <section class="main-content">
+      <div class="dashboard-header">
+        <h2>Worker Dashboard</h2>
+        <div>
+          <button class="btn btn-ghost">Today: <span id="currentDate"></span></button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Today's Appointments</h3>
+          <div class="stat-value" id="todayAppointments">0</div>
+          <small class="muted">Loading...</small>
+        </div>
+        <div class="stat-card">
+          <h3>Active Clients</h3>
+          <div class="stat-value" id="activeClients">0</div>
+          <small class="muted">Loading...</small>
+        </div>
+        <div class="stat-card">
+          <h3>Resolved Issues</h3>
+          <div class="stat-value" id="resolvedRate">0%</div>
+          <small class="muted">Avg. rating: 0</small>
+        </div>
+      </div>
+
+      <div style="background:var(--card); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow);">
+        <h3 style="margin-top:0;">Upcoming Appointments</h3>
+        <table class="appointments-table" id="appointmentsTable">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Date/Time</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Appointment rows will be injected here from Firebase -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="foot-brand">
+        <span class="logo">CC</span>
+        <strong>Click &amp; Care</strong>
+        <p>Boston-based, human, local.</p>
+      </div>
+      <div class="foot-social">
+        <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a> |
+        <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © <span id="year"></span> Click &amp; Care. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Feather icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <!-- Firebase & Dashboard Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
+      authDomain: "click-and-care-client-portal.firebaseapp.com",
+      projectId: "click-and-care-client-portal",
+      storageBucket: "click-and-care-client-portal.firebasestorage.app",
+      messagingSenderId: "469706454671",
+      appId: "1:469706454671:web:663408e0c167884126e2fa",
+      measurementId: "G-G1NXSLG0VK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Initialize UI
+    feather.replace();
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Authentication check
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "worker-login.html";
+        return;
+      }
+
+      // Set worker info dynamically
+      const email = user.email;
+      const displayName = email.split("@")[0]; // simple display
+      document.getElementById("workerName").textContent = displayName;
+      document.getElementById("workerAvatar").textContent = displayName.substring(0,2).toUpperCase();
+
+      // Fetch appointments from Firestore for this worker
+      const appointmentsRef = collection(db, "appointments");
+      const q = query(appointmentsRef, where("workerEmail", "==", email), orderBy("dateTime", "asc"));
+      const snapshot = await getDocs(q);
+      const tableBody = document.getElementById("appointmentsTable").querySelector("tbody");
+      tableBody.innerHTML = "";
+      let todayCount = 0;
+      let activeClients = new Set();
+      let resolvedCount = 0;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const dateTime = new Date(data.dateTime.seconds * 1000);
+        const today = new Date();
+        const statusClass = data.status === "confirmed" ? "status-confirmed" : data.status === "completed" ? "status-completed" : "status-pending";
+        if (dateTime.toDateString() === today.toDateString()) todayCount++;
+        if (data.status === "completed") resolvedCount++;
+        activeClients.add(data.clientName);
+
+        tableBody.innerHTML += `
+          <tr>
+            <td>${data.clientName}</td>
+            <td>${data.service}</td>
+            <td>${dateTime.toLocaleString()}</td>
+            <td>${data.location}</td>
+            <td><span class="status-badge ${statusClass}">${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</span></td>
+            <td><button class="btn btn-primary">Details</button></td>
+          </tr>
+        `;
+      });
+
+      // Update stats
+      document.getElementById("todayAppointments").textContent = todayCount;
+      document.getElementById("activeClients").textContent = activeClients.size;
+      document.getElementById("resolvedRate").textContent = snapshot.size > 0 ? Math.round((resolvedCount / snapshot.size) * 100) + "%" : "0%";
+    });
+
+    // Logout
+    document.getElementById("logoutLink").addEventListener("click", async (e) => {
+      e.preventDefault();
+      await signOut(auth);
+      window.location.href = "worker-login.html";
+    });
+  </script>
+</body>
+</html>
