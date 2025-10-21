@@ -93,10 +93,18 @@
           appointmentContainer.innerHTML = "<p>No appointments found.</p>";
         } else {
           appointmentContainer.innerHTML = "";
-          querySnapshot.forEach((doc) => {
-            const appt = doc.data();
 
-            // Format timestamp to readable date
+          // Sort appointments by date (soonest first)
+          const appointments = [];
+          querySnapshot.forEach((doc) => appointments.push(doc.data()));
+          appointments.sort((a, b) => {
+            const dateA = a.dateTime?.seconds || 0;
+            const dateB = b.dateTime?.seconds || 0;
+            return dateA - dateB;
+          });
+
+          appointments.forEach((appt) => {
+            // Format readable date
             let readableDate = "";
             if (appt.dateTime && appt.dateTime.seconds) {
               const dateObj = new Date(appt.dateTime.seconds * 1000);
@@ -112,18 +120,45 @@
               readableDate = appt.dateTime || "N/A";
             }
 
+            // Color badge for status
+            let statusColor = "gray";
+            if (appt.status?.toLowerCase() === "pending") statusColor = "orange";
+            else if (appt.status?.toLowerCase() === "completed") statusColor = "green";
+            else if (appt.status?.toLowerCase() === "cancelled") statusColor = "red";
+
             appointmentContainer.innerHTML += `
-              <div class="appointment-item" style="padding:12px 0;border-bottom:1px solid var(--border);">
+              <div class="appointment-item" style="padding:16px;border-bottom:1px solid var(--border);">
                 <p><strong>Service:</strong> ${appt.service}</p>
                 <p><strong>Date/Time:</strong> ${readableDate}</p>
                 <p><strong>Location:</strong> ${appt.location}</p>
-                <p><strong>Status:</strong> ${appt.status}</p>
+                <p><strong>Status:</strong> 
+                   <span style="
+                     color:white;
+                     background:${statusColor};
+                     padding:4px 10px;
+                     border-radius:12px;
+                     font-size:0.9em;">
+                     ${appt.status}
+                   </span>
+                </p>
                 <p><strong>Technician:</strong> ${appt.workerEmail}</p>
+                <div style="margin-top:10px;">
+                  <button style="
+                    padding:6px 12px;
+                    border:none;
+                    border-radius:8px;
+                    background:#444;
+                    color:white;
+                    cursor:not-allowed;
+                    opacity:0.5;">
+                    Cancel (coming soon)
+                  </button>
+                </div>
               </div>
             `;
           });
         }
-
+        
       } else {
         console.log("No user data found!");
       }
