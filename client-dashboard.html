@@ -31,6 +31,11 @@
         <p><strong>Technician:</strong> <span id="clientTech"></span></p>
         <p><strong>Visits Left:</strong> <span id="visitsLeft"></span></p>
       </div>
+
+      <h2 style="margin-top:40px;">Upcoming Appointments</h2>
+      <div id="appointments" class="card">
+        <p>Loading appointments...</p>
+      </div>
     </div>
   </section>
 
@@ -40,50 +45,91 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <!-- Firebase Connection -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { 
+      getFirestore, doc, getDoc, collection, query, where, getDocs 
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-<!-- Firebase Connection -->
- <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
+      authDomain: "click-and-care-client-portal.firebaseapp.com",
+      projectId: "click-and-care-client-portal",
+      storageBucket: "click-and-care-client-portal.firebasestorage.app",
+      messagingSenderId: "469706454671",
+      appId: "1:469706454671:web:663408e0c167884126e2fa",
+      measurementId: "G-G1NXSLG0VK"
+    };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
-    authDomain: "click-and-care-client-portal.firebaseapp.com",
-    projectId: "click-and-care-client-portal",
-    storageBucket: "click-and-care-client-portal.firebasestorage.app",
-    messagingSenderId: "469706454671",
-    appId: "1:469706454671:web:663408e0c167884126e2fa",
-    measurementId: "G-G1NXSLG0VK"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    // Load client data
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // window.location.href = "client-login.html"; 
+        // return;
+      }
 
-  // When client logs in
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "client-login.html"; // redirect if not logged in
-      return;
-    }
+      const docRef = doc(db, "users", "UYe5RSIvU56f2YlciLmx");
+      const docSnap = await getDoc(docRef);
 
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("clientName").textContent = data.name;
+        document.getElementById("clientPlan").textContent = data.plan;
+        document.getElementById("clientTech").textContent = data.technician;
+        document.getElementById("visitsLeft").textContent = data.visitsLeft;
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      document.getElementById("clientName").textContent = data.name;
-      document.getElementById("clientPlan").textContent = data.plan;
-      document.getElementById("clientTech").textContent = data.technician;
-      document.getElementById("visitsLeft").textContent = data.visitsLeft;
-    } else {
-      console.log("No user data found!");
-    }
-  });
+        // Load appointments
+        const q = query(collection(db, "Appointments"), where("clientName", "==", data.name));
+        const querySnapshot = await getDocs(q);
+        const appointmentContainer = document.getElementById("appointments");
 
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+        if (querySnapshot.empty) {
+          appointmentContainer.innerHTML = "<p>No appointments found.</p>";
+        } else {
+          appointmentContainer.innerHTML = "";
+          querySnapshot.forEach((doc) => {
+            const appt = doc.data();
+
+            // Format timestamp to readable date
+            let readableDate = "";
+            if (appt.dateTime && appt.dateTime.seconds) {
+              const dateObj = new Date(appt.dateTime.seconds * 1000);
+              readableDate = dateObj.toLocaleString("en-US", {
+                weekday: "short",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              });
+            } else {
+              readableDate = appt.dateTime || "N/A";
+            }
+
+            appointmentContainer.innerHTML += `
+              <div class="appointment-item" style="padding:12px 0;border-bottom:1px solid var(--border);">
+                <p><strong>Service:</strong> ${appt.service}</p>
+                <p><strong>Date/Time:</strong> ${readableDate}</p>
+                <p><strong>Location:</strong> ${appt.location}</p>
+                <p><strong>Status:</strong> ${appt.status}</p>
+                <p><strong>Technician:</strong> ${appt.workerEmail}</p>
+              </div>
+            `;
+          });
+        }
+
+      } else {
+        console.log("No user data found!");
+      }
+    });
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
