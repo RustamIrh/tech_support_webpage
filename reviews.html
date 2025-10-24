@@ -35,7 +35,50 @@
 <section class="section">
   <div class="container section-head">
     <h1 class="title">Reviews</h1>
-    <p class="lede">Testimonials coming soon. Want to be featured? <a class="link" href="contact.html">Contact us</a>.</p>
+          <div class="review-container">
+        <h2 class="review-form-title">📝 Leave a Review</h2>
+       
+        <form id="reviewForm">
+            <div class="form-group">
+                <label for="userName">Your Name</label>
+                <input type="text" id="userName" required placeholder="Enter your name">
+            </div>
+
+            <div class="form-group">
+                <label for="userRating">Rating</label>
+                <select id="userRating" required>
+                    <option value="">Select rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐ (5 stars)</option>
+                    <option value="4">⭐⭐⭐⭐ (4 stars)</option>
+                    <option value="3">⭐⭐⭐ (3 stars)</option>
+                    <option value="2">⭐⭐ (2 stars)</option>
+                    <option value="1">⭐ (1 star)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="userReview">Your Review</label>
+                <textarea id="userReview" required placeholder="Write your review here..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary full">Submit Review</button>
+        </form>
+
+        <div class="reviews-section">
+            <h2>Reviews</h2>
+            <div id="reviewsContainer">
+                <div class="no-reviews">No reviews yet. Be the first to review!</div>
+            </div>
+        </div>
+        <!-- to active and reactive the delete reviews button please comment or uncommen button below   
+        <button onclick="deleteReviews()" style="margin-top: 20px; background-color: #f44336; color: white;">
+          
+    Delete All Reviews
+    -->
+</button> 
+    </div>
+</section>
+    </div> <a class="link" href="contact.html">Contact us</a>.</p>
   </div>
 </section>
   <footer class="site-footer">
@@ -79,5 +122,122 @@
   </footer>
 
 <script src="app.js"></script>
+<script>
+  // localStorage
+const STORAGE_KEY = 'clickncare_reviews';
+
+
+function loadReviews() {
+    const storedReviews = localStorage.getItem(STORAGE_KEY);
+   
+    return storedReviews ? JSON.parse(storedReviews) : [];
+}
+
+
+function saveReviews(reviewsArray) {
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviewsArray));
+}
+
+
+let reviews = loadReviews();
+
+
+const form = document.getElementById('reviewForm');
+const reviewsContainer = document.getElementById('reviewsContainer');
+
+
+function generateStars(rating) {
+    return '⭐'.repeat(rating);
+}
+
+
+function displayReviews() {
+
+    if (reviews.length === 0) {
+        reviewsContainer.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review!</div>';
+        return;
+    }
+
+
+    const lastReview = reviews[0];
+
+    reviewsContainer.innerHTML = `
+        <div class="review-card">
+            <div class="review-header">
+                <div class="review-name">${lastReview.name}</div>
+                <div class="review-rating">${generateStars(lastReview.rating)}</div>
+            </div>
+            <div class="review-text">${lastReview.text}</div>
+        </div>
+    `;
+}
+
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+
+    const name = document.getElementById('userName').value;
+    const rating = parseInt(document.getElementById('userRating').value);
+    const reviewText = document.getElementById('userReview').value;
+
+
+    const newReview = {
+        name: name,
+        rating: rating,
+        text: reviewText
+    };
+
+
+    reviews.unshift(newReview);
+
+
+    saveReviews(reviews);
+
+
+    displayReviews();
+
+
+    form.reset();
+});
+
+function deleteReviews() {
+    const STORAGE_KEY = 'clickncare_reviews';
+    
+ 
+    localStorage.removeItem(STORAGE_KEY);
+
+    reviews = [];
+    
+
+    displayReviews();
+    
+    console.log("All reviews deleted from local storage.");
+}
+
+
+displayReviews();
+        // Reset form
+        form.reset();
+  
+    function deleteReviews() {
+    const STORAGE_KEY = 'clickncare_reviews';
+    
+
+    localStorage.removeItem(STORAGE_KEY);
+    
+
+    reviews = []; 
+    
+
+    displayReviews(); 
+    
+    console.log("All reviews deleted from local storage.");
+}
+
+
+    displayReviews(); 
+</script>
 </body>
 </html>
