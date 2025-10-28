@@ -139,7 +139,6 @@
   <!-- Feather icons -->
   <script src="https://unpkg.com/feather-icons"></script>
 
-
   <!-- Firebase & Dashboard Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -179,7 +178,7 @@
       document.getElementById("workerAvatar").textContent = displayName.substring(0,2).toUpperCase();
 
       // Fetch appointments from Firestore for this worker
-      const appointmentsRef = collection(db, "Appointments");
+      const appointmentsRef = collection(db, "appointments");
       const q = query(appointmentsRef, where("workerEmail", "==", email), orderBy("dateTime", "asc"));
       const snapshot = await getDocs(q);
       const tableBody = document.getElementById("appointmentsTable").querySelector("tbody");
@@ -221,6 +220,5 @@
       window.location.href = "worker-login.html";
     });
   </script>
-<script type="module" src="worker-dashboard.js"></script>
 </body>
 </html>
