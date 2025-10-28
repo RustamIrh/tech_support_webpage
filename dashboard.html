@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* === Dashboard Theme Integration === */
+    /* === Dashboard Theme Integration by Fobai=== */
     body {
       background: var(--bg);
       color: var(--text);
@@ -261,20 +261,37 @@
       <div class="stats-grid">
         <div class="stat-card">
           <h3>Active Support Plan</h3>
-          <div class="value">Premium</div>
+          <div class="value" id="planName">Premium</div>
+          <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" id="viewPackagesBtn"><i class="mdi mdi-package-variant"></i> Packages</button>
+            <button class="btn btn-sm btn-primary" id="upgradePlanBtn"><i class="mdi mdi-arrow-up-bold"></i> Upgrade</button>
+          </div>
         </div>
         <div class="stat-card">
-          <h3>Upcoming Appointments</h3>
-          <div class="value">2</div>
+          <h3>Visits Left</h3>
+          <div class="value" id="visitsLeft">0</div>
+          <div class="text-muted">of <span id="visitsTotal">0</span> this period</div>
         </div>
         <div class="stat-card">
-          <h3>Support Tickets</h3>
-          <div class="value">1 Open</div>
+          <h3>Dedicated Technician</h3>
+          <div class="value" id="dedicatedTech">—</div>
+          <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" id="messageTechBtn"><i class="mdi mdi-message-text-outline"></i> Message</button>
+            <a href="tel:+18005551234" class="btn btn-sm btn-outline-primary"><i class="mdi mdi-phone"></i> Call Support</a>
+          </div>
+        </div>
+        <div class="stat-card">
+          <h3>Billing</h3>
+          <div class="value" id="billingStatus">Active</div>
+          <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" id="managePaymentBtn"><i class="mdi mdi-credit-card"></i> Manage</button>
+            <button class="btn btn-sm btn-outline-primary" id="viewHistoryBtn"><i class="mdi mdi-history"></i> History</button>
+          </div>
         </div>
       </div>
 
-      <h3 class="mb-3" style="color:var(--brand)">Recent Appointments</h3>
-      <table class="appointments-table">
+      <h3 class="mb-3" style="color:var(--brand)">Upcoming & Pending</h3>
+      <table class="appointments-table" id="upcomingTable">
         <thead>
           <tr>
             <th>Service</th>
@@ -284,28 +301,22 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="upcomingTbody">
+        </tbody>
+      </table>
+
+      <h3 class="mb-3 mt-4" style="color:var(--brand)">Completed History</h3>
+      <table class="appointments-table" id="historyTable">
+        <thead>
           <tr>
-            <td>Device Setup</td>
-            <td>Oct 15, 2025</td>
-            <td>Alex Johnson</td>
-            <td><span class="badge badge-success">Completed</span></td>
-            <td><button class="btn btn-sm btn-outline-primary">Details</button></td>
+            <th>Service</th>
+            <th>Date</th>
+            <th>Technician</th>
+            <th>Status</th>
+            <th>Notes</th>
           </tr>
-          <tr>
-            <td>System Check</td>
-            <td>Oct 25, 2025</td>
-            <td>Sarah Williams</td>
-            <td><span class="badge badge-primary">Scheduled</span></td>
-            <td><button class="btn btn-sm btn-outline-primary">Reschedule</button></td>
-          </tr>
-          <tr>
-            <td>Network Issue</td>
-            <td>Nov 5, 2025</td>
-            <td>Michael Brown</td>
-            <td><span class="badge badge-warning">Pending</span></td>
-            <td><button class="btn btn-sm btn-outline-primary">Details</button></td>
-          </tr>
+        </thead>
+        <tbody id="historyTbody">
         </tbody>
       </table>
     </main>
@@ -315,14 +326,52 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Seed demo storage if empty
+      const seed = () => {
+        if (!localStorage.getItem('membership')) {
+          localStorage.setItem('membership', JSON.stringify({ plan: 'Premium', visitsTotal: 12, visitsUsed: 3, dedicatedTech: 'Sara', packages: ['Onsite Support', 'Priority Chat', 'Device Setup']}));
+        }
+        if (!localStorage.getItem('appointments')) {
+          const sample = [
+            {service: 'Device Setup', date: '2025-10-15', tech: 'Rustam', status: 'Completed', notes: 'Router + printer'},
+            {service: 'System Check', date: '2025-10-25', tech: 'Sara', status: 'Scheduled'},
+            {service: 'Network Issue', date: '2025-11-05', tech: 'Kelvin', status: 'Pending'}
+          ];
+          localStorage.setItem('appointments', JSON.stringify(sample));
+        }
+        if (!localStorage.getItem('billing')) {
+          localStorage.setItem('billing', JSON.stringify({ status: 'Active', last4: '4242', nextInvoice: '2025-11-01', history: [{date:'2025-09-01', amount: 49},{date:'2025-10-01', amount:49}] }));
+        }
+      };
+      seed();
+
       // === Display client name ===
       const storedName = localStorage.getItem('clientName');
       const userNameSpan = document.getElementById('userName');
-      if (storedName && storedName.trim() !== '') {
-        userNameSpan.textContent = storedName;
-      } else {
-        userNameSpan.textContent = 'Client';
-      }
+      userNameSpan.textContent = (storedName && storedName.trim() !== '') ? storedName : 'Client';
+
+      // Load membership UI
+      const membership = JSON.parse(localStorage.getItem('membership'));
+      document.getElementById('planName').textContent = membership.plan;
+      document.getElementById('visitsLeft').textContent = Math.max(0, membership.visitsTotal - membership.visitsUsed);
+      document.getElementById('visitsTotal').textContent = membership.visitsTotal;
+      document.getElementById('dedicatedTech').textContent = membership.dedicatedTech || 'Unassigned';
+
+      // Load billing
+      const billing = JSON.parse(localStorage.getItem('billing'));
+      document.getElementById('billingStatus').textContent = billing.status;
+
+      // Render appointments into upcoming/history
+      const appts = JSON.parse(localStorage.getItem('appointments')) || [];
+      const upcomingTbody = document.getElementById('upcomingTbody');
+      const historyTbody = document.getElementById('historyTbody');
+      const toRow = (a) => {
+        const statusBadge = a.status === 'Completed' ? 'badge-success' : (a.status === 'Scheduled' ? 'badge-primary' : 'badge-warning');
+        const actions = a.status === 'Completed' ? '-' : `<button class="btn btn-sm btn-outline-primary" data-action="reschedule">Reschedule</button>`;
+        return `<tr><td>${a.service}</td><td>${new Date(a.date).toDateString()}</td><td>${a.tech}</td><td><span class="badge ${statusBadge}">${a.status}</span></td><td>${actions}</td></tr>`;
+      };
+      appts.filter(a=>a.status!=='Completed').forEach(a=> upcomingTbody.insertAdjacentHTML('beforeend', toRow(a)));
+      appts.filter(a=>a.status==='Completed').forEach(a=> historyTbody.insertAdjacentHTML('beforeend', `<tr><td>${a.service}</td><td>${new Date(a.date).toDateString()}</td><td>${a.tech}</td><td><span class="badge badge-success">Completed</span></td><td>${a.notes||''}</td></tr>`));
 
       // === Logout ===
       document.getElementById('logoutLink').addEventListener('click', function(e) {
@@ -343,43 +392,159 @@
         });
       });
 
-      // === New Appointment Modal ===
-      document.getElementById('newAppointmentBtn').addEventListener('click', function() {
+      // View packages
+      document.getElementById('viewPackagesBtn').addEventListener('click', ()=>{
+        const pkgs = membership.packages.map(p=>`<li>${p}</li>`).join('');
+        Swal.fire({title:'Your Packages', html:`<ul class="text-start">${pkgs}</ul>`});
+      });
+
+      // Upgrade plan
+      document.getElementById('upgradePlanBtn').addEventListener('click', ()=>{
         Swal.fire({
-          title: 'New Appointment',
+          title:'Upgrade Plan',
+          html:`<div class="text-start">
+            <label class="form-label">Select Plan</label>
+            <select id="planSelect" class="form-select">
+              <option ${membership.plan==='Basic'?'selected':''}>Basic</option>
+              <option ${membership.plan==='Standard'?'selected':''}>Standard</option>
+              <option ${membership.plan==='Premium'?'selected':''}>Premium</option>
+              <option ${membership.plan==='Elite'?'selected':''}>Elite</option>
+            </select>
+          </div>`,
+          showCancelButton:true,
+          confirmButtonText:'Update',
+          confirmButtonColor:'#d6b35b'
+        }).then(res=>{
+          if(res.isConfirmed){
+            const newPlan = document.getElementById('planSelect').value;
+            membership.plan = newPlan;
+            localStorage.setItem('membership', JSON.stringify(membership));
+            document.getElementById('planName').textContent = newPlan;
+            Swal.fire('Updated', 'Your plan has been updated.', 'success');
+          }
+        });
+      });
+
+      // Manage payment
+      document.getElementById('managePaymentBtn').addEventListener('click', ()=>{
+        Swal.fire({
+          title:'Manage Payment',
+          html:`<div class="text-start">
+            <div class="mb-2">Status: <strong>${billing.status}</strong></div>
+            <div class="mb-3">Card: **** **** **** ${billing.last4}</div>
+            <label class="form-label">Update Card (last 4)</label>
+            <input id="cardLast4" class="form-control" maxlength="4" placeholder="1234" />
+          </div>`,
+          showCancelButton:true,
+          confirmButtonText:'Save',
+          confirmButtonColor:'#d6b35b'
+        }).then(res=>{
+          if(res.isConfirmed){
+            const v = (document.getElementById('cardLast4').value||'').trim();
+            if(/^[0-9]{4}$/.test(v)){
+              billing.last4 = v;
+              localStorage.setItem('billing', JSON.stringify(billing));
+              Swal.fire('Saved', 'Payment method updated.', 'success');
+            } else {
+              Swal.fire('Error', 'Enter last 4 digits.', 'error');
+            }
+          }
+        });
+      });
+
+      // View billing history
+      document.getElementById('viewHistoryBtn').addEventListener('click', ()=>{
+        const rows = billing.history.map(h=>`<tr><td>${h.date}</td><td>${h.amount}</td></tr>`).join('');
+        Swal.fire({title:'Billing History', html:`<table class="table"><thead><tr><th>Date</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>`});
+      });
+
+      // Message tech (simple prompt)
+      document.getElementById('messageTechBtn').addEventListener('click', ()=>{
+        Swal.fire({
+          title:`Message ${membership.dedicatedTech}`,
+          input:'textarea',
+          inputPlaceholder:'Type your message...'
+        }).then(res=>{ if(res.isConfirmed){ Swal.fire('Sent', 'Your message was sent.', 'success'); }});
+      });
+
+      // === New/Reschedule Appointment Modal with technician selection and availability ===
+      const openAppointmentModal = (existing) => {
+        const techs = ['Rustam','Fobai','Chris','Sara','Kelvin'];
+        const services = ['Device Setup','System Check','Network Setup','Software Support','Other'];
+        Swal.fire({
+          title: existing? 'Reschedule Appointment' : 'New Appointment',
           html: `
             <form id="appointmentForm">
               <div class="mb-3 text-start">
                 <label class="form-label">Service Type</label>
-                <select class="form-select">
-                  <option>Device Setup</option>
-                  <option>System Check</option>
-                  <option>Network Setup</option>
-                  <option>Software Support</option>
-                  <option>Other</option>
-                </select>
+                <select id="svc" class="form-select">${services.map(s=>`<option ${existing&&existing.service===s?'selected':''}>${s}</option>`).join('')}</select>
               </div>
               <div class="mb-3 text-start">
-                <label class="form-label">Preferred Date</label>
-                <input type="date" class="form-control">
+                <label class="form-label">Technician</label>
+                <select id="tech" class="form-select">${techs.map(t=>`<option ${existing&&existing.tech===t?'selected':''}>${t}</option>`).join('')}</select>
+              </div>
+              <div class="mb-3 text-start">
+                <label class="form-label">Preferred Date & Time</label>
+                <input id="date" type="date" class="form-control" value="${existing? existing.date: ''}">
+                <select id="time" class="form-select mt-2">
+                  <option>09:00</option>
+                  <option>11:00</option>
+                  <option>13:00</option>
+                  <option>15:00</option>
+                  <option>17:00</option>
+                </select>
+                <div class="form-text">Available slots are 9a, 11a, 1p, 3p, 5p.</div>
               </div>
               <div class="mb-3 text-start">
                 <label class="form-label">Notes</label>
-                <textarea class="form-control" rows="3"></textarea>
+                <textarea id="notes" class="form-control" rows="3">${existing&&existing.notes? existing.notes: ''}</textarea>
               </div>
             </form>
           `,
           showCancelButton: true,
-          confirmButtonText: 'Schedule',
+          confirmButtonText: existing? 'Update' : 'Schedule',
           confirmButtonColor: '#d6b35b',
-          showLoaderOnConfirm: true,
-          preConfirm: () => new Promise(resolve => setTimeout(resolve, 1200))
-        }).then((result) => {
-          if (result.isConfirmed) {
-            Swal.fire('Scheduled!', 'Your appointment has been added.', 'success');
+          preConfirm: () => {
+            const date = (document.getElementById('date').value||'').trim();
+            const time = (document.getElementById('time').value||'').trim();
+            const tech = document.getElementById('tech').value;
+            if(!date){ Swal.showValidationMessage('Please choose a date'); return false; }
+            // Simple availability rule: prevent double-booking same tech same date+time
+            const key = `${date} ${time}`;
+            const conflict = (JSON.parse(localStorage.getItem('appointments'))||[]).some(a=> a.tech===tech && (a.date===date || a.date===key));
+            if(conflict){ Swal.showValidationMessage('Selected technician is not available at that time.'); return false; }
+            return { service: document.getElementById('svc').value, tech, date, time, notes: document.getElementById('notes').value };
+          }
+        }).then(res=>{
+          if(res.isConfirmed){
+            const payload = res.value;
+            const list = JSON.parse(localStorage.getItem('appointments'))||[];
+            const record = { service: payload.service, tech: payload.tech, date: payload.date, time: payload.time, status: 'Scheduled', notes: payload.notes };
+            if(existing){
+              // replace first match
+              const idx = list.findIndex(a=> a.service===existing.service && a.date===existing.date && a.tech===existing.tech);
+              if(idx>-1) list[idx] = record; else list.push(record);
+            } else {
+              list.push(record);
+            }
+            localStorage.setItem('appointments', JSON.stringify(list));
+            location.reload();
           }
         });
+      };
+
+      document.getElementById('newAppointmentBtn').addEventListener('click', ()=> openAppointmentModal());
+
+      // Delegate reschedule buttons
+      document.getElementById('upcomingTable').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button[data-action="reschedule"]');
+        if(!btn) return;
+        const row = btn.closest('tr');
+        const cells = row.querySelectorAll('td');
+        const existing = { service: cells[0].textContent, date: new Date(cells[1].textContent).toISOString().slice(0,10), tech: cells[2].textContent };
+        openAppointmentModal(existing);
       });
+
     });
   </script>
 </body>
