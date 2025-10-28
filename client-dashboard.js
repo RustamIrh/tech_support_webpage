@@ -10,33 +10,57 @@ import {
   orderBy,
   serverTimestamp,
   updateDoc,
-  doc
+  doc,
+  getDoc // ✅ added comma here (fixed syntax)
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js";
 
 let currentUser = null;
 
-// Listen for login state
-onAuthStateChanged(auth, (user) => {
+// ✅ Listen for login state
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     document.getElementById("userName").textContent =
       user.displayName || user.email;
+
+    // 🔹 Get elements from the HTML (plan info box)
+    const planTypeEl = document.getElementById("planType");
+    const visitsRemainingEl = document.getElementById("visitsRemaining");
+
+    // 🔹 Get this user's Firestore document
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    // 🔹 If document exists, show plan info
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      planTypeEl.textContent = data.planType || "No plan";
+      visitsRemainingEl.textContent =
+        typeof data.visitsRemaining === "number" ? data.visitsRemaining : "0";
+    } else {
+      planTypeEl.textContent = "No plan found";
+      visitsRemainingEl.textContent = "0";
+    }
+
+    // ✅ Load appointments after showing plan info
     loadAppointments();
   } else {
     window.location.href = "client.html";
   }
 });
 
+// ✅ Function to load appointments
 async function loadAppointments() {
   const q = query(
-    collection(db, "appointments"),
+    collection(db, "appointments"), // ✅ make sure your collection is lowercase "appointments"
     where("clientEmail", "==", currentUser.email),
     orderBy("createdAt", "desc")
   );
 
   onSnapshot(q, (snapshot) => {
     const tbody = document.querySelector(".appointments-table tbody");
+    if (!tbody) return; // ✅ prevents errors if the table isn't on the page yet
     tbody.innerHTML = "";
 
     snapshot.forEach((docSnap) => {
@@ -76,7 +100,7 @@ async function loadAppointments() {
       `;
     });
 
-    // Handle Cancel button clicks
+    // ✅ Handle Cancel button clicks
     document.querySelectorAll(".btn-danger").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-id");
@@ -97,52 +121,5 @@ async function loadAppointments() {
   });
 }
 
-// Schedule new appointment
-document.getElementById("newAppointmentBtn").addEventListener("click", async () => {
-  const { value: formValues } = await Swal.fire({
-    title: "New Appointment",
-    html: `
-      <form id="appointmentForm">
-        <div class="mb-3 text-start">
-          <label class="form-label">Service Type</label>
-          <select class="form-select" id="serviceType">
-            <option>Device Setup</option>
-            <option>System Check</option>
-            <option>Network Setup</option>
-            <option>Software Support</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="mb-3 text-start">
-          <label class="form-label">Preferred Date</label>
-          <input type="date" class="form-control" id="preferredDate">
-        </div>
-        <div class="mb-3 text-start">
-          <label class="form-label">Notes</label>
-          <textarea class="form-control" rows="3" id="notes"></textarea>
-        </div>
-      </form>
-    `,
-    showCancelButton: true,
-    confirmButtonText: "Schedule",
-    preConfirm: () => ({
-      serviceType: document.getElementById("serviceType").value,
-      preferredDate: document.getElementById("preferredDate").value,
-      notes: document.getElementById("notes").value,
-    }),
-  });
-
-  if (formValues) {
-    await addDoc(collection(db, "appointments"), {
-      clientName: currentUser.displayName || currentUser.email,
-      clientEmail: currentUser.email,
-      serviceType: formValues.serviceType,
-      preferredDate: formValues.preferredDate,
-      notes: formValues.notes,
-      status: "Pending",
-      assignedWorker: null,
-      createdAt: serverTimestamp(),
-    });
-    Swal.fire("Scheduled!", "Your appointment has been added.", "success");
-  }
-});
+// ✅ Schedule new appointment
+const newAppointmentBtn = docum
