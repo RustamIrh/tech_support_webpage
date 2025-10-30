@@ -1,68 +1,50 @@
+// Modern_ClickCare/login.js
+// Turns the client login form into real Firebase Auth login.
+
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+// SAME config as worker-login/worker-dashboard
+const firebaseConfig = {
+  apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
+  authDomain: "click-and-care-client-portal.firebaseapp.com",
+  projectId: "click-and-care-client-portal",
+  storageBucket: "click-and-care-client-portal.firebasestorage.app",
+  messagingSenderId: "469706454671",
+  appId: "1:469706454671:web:663408e0c167884126e2fa",
+  measurementId: "G-G1NXSLG0VK"
+};
+
+const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
-  const emailError = document.getElementById("emailError");
-  const passwordError = document.getElementById("passwordError");
-  const successMessage = document.getElementById("successMessage");
-  const loginButton = document.getElementById("loginButton");
+  const messageEl = document.getElementById("successMessage") || document.getElementById("emailError");
 
-  // Create toggle icon dynamically
-  const toggle = document.createElement("span");
-  toggle.textContent = "👁️";
-  toggle.style.cursor = "pointer";
-  toggle.style.marginLeft = "8px";
-  toggle.style.userSelect = "none";
-
-  // Insert toggle icon right after the password input
-  passwordInput.insertAdjacentElement("afterend", toggle);
-
-  toggle.addEventListener("click", () => {
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-      toggle.textContent = "🙈";
-    } else {
-      passwordInput.type = "password";
-      toggle.textContent = "👁️";
-    }
+  // If already signed in, go straight to dashboard
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = "dashboard.html";
   });
 
-  form.addEventListener("submit", (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    emailError.textContent = "";
-    passwordError.textContent = "";
-
     const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
+    const password = passwordInput.value;
 
-    let valid = true;
-
-    if (!email) {
-      emailError.textContent = "Email is required.";
-      valid = false;
-    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      emailError.textContent = "Please enter a valid email.";
-      valid = false;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      if (messageEl) {
+        messageEl.style.display = "block";
+        messageEl.textContent = err.message;
+      } else {
+        alert(err.message);
+      }
     }
-
-    if (!password) {
-      passwordError.textContent = "Password is required.";
-      valid = false;
-    }
-
-    if (!valid) return;
-
-    loginButton.disabled = true;
-    loginButton.textContent = "Signing in...";
-
-    setTimeout(() => {
-      successMessage.style.display = "block";
-      loginButton.textContent = "Sign In";
-
-      // Simulated redirect after success
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 2000);
-    }, 1000);
   });
 });
+
