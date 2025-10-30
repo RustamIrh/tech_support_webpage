@@ -1,9 +1,10 @@
 // worker-dashboard.js
+// DO NOT CHANGE WITHOUT RUSTAM
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ⬇️ PASTE THE REAL CONFIG (same as dashboard/client pages)
+// PASTE THE REAL CONFIG (same as dashboard/client pages)
 const firebaseConfig = {
   apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
   authDomain: "click-and-care-client-portal.firebaseapp.com",
