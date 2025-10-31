@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Client Details — Click & Care</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    .wrap { max-width: 1100px; margin: 40px auto; padding: 0 16px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .card { background: var(--card); border:1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .muted { color: var(--muted); }
+    table { width:100%; border-collapse: collapse; }
+    th,td{ padding:12px; border-bottom:1px solid var(--border); text-align:left; }
+    th{ background: rgba(214,179,91,0.08); color: var(--brand); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div><a href="worker-clients.html" class="btn btn-ghost">← Back to Clients</a></div>
+      <nav class="muted"><a href="worker-dashboard.html">Dashboard</a> · <strong>Client Details</strong></nav>
+    </div>
+
+    <h1 id="clientName">Client</h1>
+    <div class="grid">
+      <div class="card">
+        <h3 style="margin-top:0;">Profile</h3>
+        <div class="muted" id="profileInfo">Loading...</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">Plan & Visits</h3>
+        <div class="muted" id="planInfo">Loading...</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3 style="margin-top:0;">Appointments</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Date/Time</th>
+            <th>Status</th>
+            <th>Technician</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="apptTbody">
+          <tr><td colspan="5" class="muted">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="worker-client-detail.js"></script>
+</body>
+</html>

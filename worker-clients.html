@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clients — Click & Care</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--background); color: var(--text); }
+    .page { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; }
+    .page-header h2 { margin:0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+    .tools { display:flex; gap:10px; align-items:center; }
+    .input { background: var(--bg); border:1px solid var(--border); border-radius: 10px; padding:10px 12px; color:var(--text); min-width: 260px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { background: rgba(var(--brand-rgb),0.08); color: var(--brand); position: sticky; top: 0; }
+    .status-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; }
+    .dot-active { background:#22c55e; }
+    .dot-inactive { background:#f59e0b; }
+    .btn { padding: 8px 12px; border-radius: var(--radius-sm); border:1px solid var(--border); background: transparent; color: var(--text); cursor:pointer; }
+    .btn:hover { background: rgba(var(--brand-rgb), 0.08); }
+    .btn-primary { background: var(--brand); color: white; border:none; }
+    .badge { display:inline-block; padding:4px 10px; border-radius: 999px; font-weight:600; font-size: .85rem; }
+    .badge-tech { background: rgba(var(--brand-rgb),0.12); color: var(--brand); }
+    .muted { color: var(--muted); }
+    .table-wrap { overflow:auto; border-radius: var(--radius); }
+    .empty { text-align:center; padding:40px 10px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <span class="logo">CC</span>
+        <span class="brand-text">Click &amp; Care</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="worker-dashboard.html">Dashboard</a></li>
+          <li><a class="active" href="worker-clients.html">Clients</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-header">
+      <h2>My Clients</h2>
+      <div class="tools">
+        <input id="search" class="input" type="search" placeholder="Search name or email…"/>
+        <button id="exportBtn" class="btn">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table id="clientsTable">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Visits Left</th>
+              <th>Last Appt</th>
+              <th>Assigned Tech</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientsTbody">
+            <tr><td colspan="7" class="empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- SweetAlert2 for quick detail popups -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Feather icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    if (window.feather) window.feather.replace();
+  </script>
+
+  <!-- Page logic -->
+  <script type="module" src="worker-clients.js"></script>
+</body>
+</html>
