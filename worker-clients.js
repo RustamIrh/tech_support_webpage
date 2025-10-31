@@ -3,7 +3,8 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs
+  getFirestore, doc, getDoc, collection, query, where, orderBy,
+  limit, limitToLast, getDocs
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // ---- Firebase (use your same config) ----
@@ -113,39 +114,39 @@ onAuthStateChanged(auth, async (user) => {
     const techId = me.technicianId || me.dedicatedTechnicianId;
     if (!techId) { setError("Your profile has no technicianId / dedicatedTechnicianId."); return; }
 
-    // IMPORTANT: users query should NOT orderBy startAt (that field is not on users)
-    // We order by name (or email) here.
+    // List clients for this tech (order by name)
     const usersQ = query(
       collection(db, "users"),
       where("dedicatedTechnicianId", "==", techId),
       orderBy("name", "asc"),
       limit(500)
     );
-
     const usersSnap = await getDocs(usersQ);
 
-    // Build rows; for each client, fetch latest appointment (separate query)
     const rows = [];
     for (const uDoc of usersSnap.docs) {
       const u = uDoc.data();
       const uid = uDoc.id;
 
-      // latest appointment for this client
+      // === LAST APPOINTMENT (MATCH ASCENDING INDEX) ===
+      // Use ascending order + limitToLast(1) so it works with your existing ascending index.
       let lastApptText = "";
       try {
         const lastQ = query(
           collection(db, "appointments"),
           where("clientUid", "==", uid),
-          orderBy("startAt", "desc"),
-          limit(1)
+          orderBy("startAt", "asc"),
+          limitToLast(1)
         );
         const lastSnap = await getDocs(lastQ);
         if (!lastSnap.empty) {
           const a = lastSnap.docs[0].data();
-          lastApptText = fmt(a.startAt);
+          const when = a.startAt ? fmt(a.startAt) : "—";
+          const svc  = a.service || "";
+          const st   = a.status ? ` • ${a.status}` : "";
+          lastApptText = `${when}${svc ? " — " + svc : ""}${st}`;
         }
       } catch (e) {
-        // If you hit an index error here, it’s on APPOINTMENTS: clientUid + startAt
         console.warn("Last appt query failed for", uid, e);
       }
 
@@ -170,13 +171,14 @@ onAuthStateChanged(auth, async (user) => {
 
   } catch (err) {
     console.error("Users query failed:", err);
-    if (String(err?.message || "").includes("index")) {
-      setError("This view needs an index on APPOINTMENTS (clientUid + startAt). Click the blue link shown in your dev console, wait until it says “Enabled,” then refresh.");
+    if (String(err?.message || "").toLowerCase().includes("index")) {
+      setError("This view needs a users index (dedicatedTechnicianId + name). Click the blue link in the console, Save, wait until Enabled, then refresh.");
     } else {
       setError("Cannot read users assigned to this tech. Check security rules (see console).");
     }
   }
 });
+
 
 
 
