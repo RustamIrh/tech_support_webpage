@@ -1,105 +1,199 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Click & Care — Sign up</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sign Up — Click & Care</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
-<body class="p-4">
-  <div class="container" style="max-width:480px;">
-    <h2 class="mb-3">Create your account</h2>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html">
+      <span class="logo">CC</span>
+      <span class="brand-text">Click &amp; Care</span>
+    </a>
+    <nav class="nav">
+      <button class="nav-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="reviews.html">Reviews</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a class="btn btn-ghost" href="contact.html">Contact</a>
+        <a class="btn btn-ghost" href="worker-login.html">Worker Access</a>
+        <a class="btn btn-primary" href="client.html">Client Login</a>
+      </div>
+    </nav>
+  </div>
+</header>
 
-    <form id="signupForm" class="vstack gap-3">
-      <input id="name" class="form-control" placeholder="Full name" required>
-      <input id="email" class="form-control" type="email" placeholder="Email" required>
-      <input id="phone" class="form-control" placeholder="Phone (optional)">
-      <input id="password" class="form-control" type="password" placeholder="Password (min 6 chars)" required>
+<section class="section" style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
+  <div class="login-container" style="max-width:520px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px;box-shadow:var(--shadow);">
+    <div class="login-header" style="text-align:center;margin-bottom:28px;">
+      <div style="display:grid;place-items:center;margin-bottom:10px;">
+        <div class="logo" style="width:50px;height:50px;border-radius:16px;">CC</div>
+      </div>
+      <h2>Create your account</h2>
+      <p class="muted">Join Click &amp; Care to manage your services with ease</p>
+    </div>
 
-      <!-- Default everyone to client; change if you need to create staff here -->
-      <select id="role" class="form-select">
-        <option value="client" selected>Client</option>
-        <option value="technician">Technician</option>
-        <option value="admin">Admin</option>
-      </select>
-
-      <!-- Optional starter fields for the client dashboard -->
-      <input id="plan" class="form-control" placeholder="Plan (e.g., Comfort Care)">
-      <input id="periodVisits" class="form-control" type="number" placeholder="Period visits (e.g., 12)">
-      <button class="btn btn-primary w-100" type="submit">Create account</button>
+    <form id="signupForm">
+      <div class="form-grid">
+        <div class="full">
+          <label for="name" class="muted">Full name</label>
+          <input id="name" class="input" placeholder="Jane Doe" required>
+        </div>
+        <div class="full">
+          <label for="email" class="muted">Email</label>
+          <input id="email" class="input" type="email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div>
+          <label for="phone" class="muted">Phone</label>
+          <input id="phone" class="input" placeholder="(optional)">
+        </div>
+        <div>
+          <label for="password" class="muted">Password</label>
+          <input id="password" class="input" type="password" placeholder="At least 6 characters" required autocomplete="new-password">
+        </div>
+        <div class="full">
+          <label for="role" class="muted">Role</label>
+          <select id="role" class="input">
+            <option value="client" selected>Client</option>
+            <option value="technician">Technician</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label for="plan" class="muted">Plan</label>
+          <input id="plan" class="input" placeholder="Comfort Care">
+        </div>
+        <div>
+          <label for="periodVisits" class="muted">Period visits</label>
+          <input id="periodVisits" class="input" type="number" placeholder="12">
+        </div>
+        <div class="full">
+          <button class="btn btn-primary full" type="submit">Create account</button>
+        </div>
+      </div>
     </form>
 
-    <div id="signupMessage" class="mt-3"></div>
-    <div class="mt-3">
-      <a href="client.html">Already have an account? Sign in</a>
+    <div id="signupMessage" style="margin-top:14px; min-height: 22px;"></div>
+
+    <div class="signup-link" style="text-align:center;margin-top:16px;">
+      <p>Already have an account? <a href="client.html" style="color:var(--brand);">Sign in</a></p>
     </div>
   </div>
+</section>
 
-  <script type="module">
-    import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="foot-brand">
+      <span class="logo">CC</span>
+      <strong>Click &amp; Care</strong>
+      <p>Boston-based, human, local.</p>
+    </div>
 
-    // SAME config as worker-dashboard.html
-    const firebaseConfig = {
-      apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
-      authDomain: "click-and-care-client-portal.firebaseapp.com",
-      projectId: "click-and-care-client-portal",
-      storageBucket: "click-and-care-client-portal.firebasestorage.app",
-      messagingSenderId: "469706454671",
-      appId: "1:469706454671:web:663408e0c167884126e2fa",
-      measurementId: "G-G1NXSLG0VK"
-    };
+    <nav class="foot-links">
+      <h4>Company</h4>
+      <a href="about.html">About</a>
+      <a href="services.html">Services</a>
+      <a href="faq.html">FAQ</a>
+      <a href="blog.html">Blog</a>
+    </nav>
 
-    const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+    <nav class="foot-links">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="licenses.html">Licenses</a>
+    </nav>
 
-    const $ = (id) => document.getElementById(id);
-    const msg = $("signupMessage");
+    <div class="foot-social">
+      <h4>Get in touch</h4>
+      <p class="muted">(857) 408-4904<br>
+      <a href="mailto:clickncareservice@gmail.com">clickncareservice@gmail.com</a></p>
+      <div class="social-row">
+        <a href="https://x.com/clickncarehelp" target="_blank" rel="noopener">X</a>
+        <a href="https://www.instagram.com/clickncareservice/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+      <a class="btn btn-primary" style="margin-top:10px" href="tel:+18574084904">Call Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © <span id="year"></span> Click &amp; Care. All rights reserved.
+  </div>
+</footer>
 
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      msg.textContent = "";
+<script type="module">
+  import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-      const name  = $("name").value.trim();
-      const email = $("email").value.trim();
-      const phone = $("phone").value.trim();
-      const pass  = $("password").value;
-      const role  = $("role").value;
-      const plan  = $("plan").value.trim() || "Comfort Care";
-      const periodVisits = Number($("periodVisits").value || 12);
+  const firebaseConfig = {
+    apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
+    authDomain: "click-and-care-client-portal.firebaseapp.com",
+    projectId: "click-and-care-client-portal",
+    storageBucket: "click-and-care-client-portal.firebasestorage.app",
+    messagingSenderId: "469706454671",
+    appId: "1:469706454671:web:663408e0c167884126e2fa",
+    measurementId: "G-G1NXSLG0VK"
+  };
 
-      try {
-        // 1) Create the Auth user
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        const uid = cred.user.uid;
+  const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
 
-        // 2) Set the displayName (optional but nice)
-        await updateProfile(cred.user, { displayName: name });
+  // If signed in, go to dashboard
+  onAuthStateChanged(auth, (user) => { if (user) window.location.href = "dashboard.html"; });
 
-        // 3) Create the Firestore profile doc users/{UID} (THIS is what the dashboard reads)
-        await setDoc(doc(db, "users", uid), {
-          role,
-          name,
-          email,
-          phone,
-          plan,
-          periodVisits,
-          visitsUsed: 0,                 // dashboard computes visitsLeft = periodVisits - visitsUsed
-          dedicatedTechnicianId: "",     // fill later with TECH ID if you want
-          joinedAt: serverTimestamp()
-        });
+  const $ = (id) => document.getElementById(id);
+  const form = $("signupForm");
+  const msg  = $("signupMessage");
 
-        msg.style.color = "green";
-        msg.textContent = "Account created! Redirecting to dashboard…";
-        // Optional: send them to the dashboard immediately
-        window.location.href = "dashboard.html";
-      } catch (err) {
-        msg.style.color = "crimson";
-        msg.textContent = err.message;
-      }
-    });
-  </script>
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "";
+
+    const name  = $("name").value.trim();
+    const email = $("email").value.trim();
+    const phone = $("phone").value.trim();
+    const pass  = $("password").value;
+    const role  = $("role").value;
+    const plan  = $("plan").value.trim() || "Comfort Care";
+    const periodVisits = Number($("periodVisits").value || 12);
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      const uid = cred.user.uid;
+
+      await updateProfile(cred.user, { displayName: name });
+
+      await setDoc(doc(db, "users", uid), {
+        role,
+        name,
+        email,
+        phone,
+        plan,
+        periodVisits,
+        visitsUsed: 0,
+        dedicatedTechnicianId: "",
+        joinedAt: serverTimestamp()
+      });
+
+      msg.style.color = "#6bdc77";
+      msg.textContent = "Account created! Redirecting…";
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      msg.style.color = "#ff7a7a";
+      msg.textContent = err.message;
+    }
+  });
+</script>
+<script src="app.js"></script>
 </body>
 </html>

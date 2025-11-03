@@ -24,9 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.getElementById("password");
   const messageEl = document.getElementById("successMessage") || document.getElementById("emailError");
 
-  // If already signed in, go straight to dashboard
+  // If already signed in, do not auto-redirect from the login page.
+  // This keeps the login form accessible even when a session exists.
   onAuthStateChanged(auth, (user) => {
-    if (user) window.location.href = "dashboard.html";
+    // Optionally, you could reveal a notice or a "Continue to dashboard" link here.
   });
 
   form?.addEventListener("submit", async (e) => {
