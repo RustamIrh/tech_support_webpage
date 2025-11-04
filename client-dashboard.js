@@ -225,6 +225,80 @@ async function loadClient(uid) {
     }
   });
 
+  // ---- "New Appointment" (schedule) ----
+$("newAppointmentBtn")?.addEventListener("click", async () => {
+  // Ensure profile loaded above as `u`
+  if (!u?.dedicatedTechnicianId) {
+    await Swal.fire('Missing technician', 'Your profile has no assigned technician yet. Please contact support.', 'warning');
+    return;
+  }
+
+  const services = ['Device Setup','System Check','Network Setup','Software Support','Other'];
+  const html = `
+    <div class="text-start">
+      <label>Service</label>
+      <select id="svc" class="swal2-select">
+        ${services.map(s=>`<option>${s}</option>`).join('')}
+      </select>
+      <label class="mt-3">Preferred Date</label>
+      <input id="date" type="date" class="swal2-input" />
+      <label class="mt-3">Time</label>
+      <select id="time" class="swal2-select">
+        <option>09:00</option><option>11:00</option><option>13:00</option>
+        <option>15:00</option><option>17:00</option>
+      </select>
+      <label class="mt-3">Notes</label>
+      <textarea id="notes" class="swal2-textarea" rows="3"></textarea>
+    </div>
+  `;
+
+  const res = await Swal.fire({
+    title: "New Appointment",
+    html,
+    showCancelButton: true,
+    confirmButtonText: "Schedule",
+    confirmButtonColor: "#d6b35b",
+    preConfirm: () => {
+      const date = document.getElementById("date").value?.trim();
+      const time = document.getElementById("time").value?.trim() || "09:00";
+      if (!date) { Swal.showValidationMessage("Please choose a date"); return false; }
+      const start = new Date(`${date}T${time}:00`);
+      if (isNaN(start.getTime())) { Swal.showValidationMessage("Invalid date/time"); return false; }
+      return {
+        service: document.getElementById("svc").value,
+        startAt: Timestamp.fromDate(start),
+        notes: document.getElementById("notes").value || ""
+      };
+    }
+  });
+
+  if (!res.isConfirmed) return;
+
+  try {
+    await addDoc(collection(db, "appointments"), {
+      clientUid: uid,                              // <— the signed-in client's uid
+      clientName: u.name || "Client",
+      technicianId: u.dedicatedTechnicianId,      // <— must be a string, must match worker
+      service: res.value.service,
+      status: "pending",                           // allowed by rules
+      startAt: res.value.startAt,
+      location: u.address || "—",
+      notes: res.value.notes,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now()
+    });
+    Swal.fire("Scheduled", "Your request has been submitted.", "success");
+  } catch (err) {
+    console.error("add appointment failed:", err);
+    const msg = String(err?.message || "");
+    if (msg.toLowerCase().includes("permission") || msg.toLowerCase().includes("denied")) {
+      Swal.fire("Not allowed", "Your account isn’t permitted to create appointments. Please contact support.", "error");
+    } else {
+      Swal.fire("Error", "Could not create the appointment. See console for details.", "error");
+    }
+  }
+});
+
   // ---- Logout ----
   $("logoutLink")?.addEventListener("click", (e) => {
     e.preventDefault();
