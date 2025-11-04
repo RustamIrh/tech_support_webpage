@@ -52,6 +52,10 @@
           <label for="email" class="muted">Email</label>
           <input id="email" class="input" type="email" placeholder="you@example.com" required autocomplete="email">
         </div>
+        <div class="full">
+          <label for="address" class="muted">Address</label>
+          <input id="address" class="input" placeholder="123 Main St, Anytown, MA 02472" required>
+        </div>
         <div>
           <label for="phone" class="muted">Phone</label>
           <input id="phone" class="input" placeholder="(optional)">
@@ -68,15 +72,15 @@
             <option value="admin">Admin</option>
           </select>
         </div>
-        <div>
-          <label for="plan" class="muted">Plan</label>
-          <input id="plan" class="input" placeholder="Comfort Care">
-        </div>
-        <div>
-          <label for="periodVisits" class="muted">Period visits</label>
-          <input id="periodVisits" class="input" type="number" placeholder="12">
-        </div>
         <div class="full">
+          <label for="plan" class="muted">Plan</label>
+          <select id="plan" class="input" required>
+            <option value="Essential">Essential</option>
+            <option value="Comfort" selected>Comfort</option>
+            <option value="Concierge">Concierge</option>
+          </select>
+        </div>
+                <div class="full">
           <button class="btn btn-primary full" type="submit">Create account</button>
         </div>
       </div>
@@ -148,8 +152,10 @@
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  // If signed in, go to dashboard
-  onAuthStateChanged(auth, (user) => { if (user) window.location.href = "dashboard.html"; });
+  // Keep users on the signup page even if already signed in
+  onAuthStateChanged(auth, (user) => {
+    // Intentionally no redirect here to allow access to the signup form
+  });
 
   const $ = (id) => document.getElementById(id);
   const form = $("signupForm");
@@ -161,22 +167,27 @@
 
     const name  = $("name").value.trim();
     const email = $("email").value.trim();
+    const address = $("address").value.trim(); // NEW: Address value retrieval
     const phone = $("phone").value.trim();
     const pass  = $("password").value;
     const role  = $("role").value;
-    const plan  = $("plan").value.trim() || "Comfort Care";
-    const periodVisits = Number($("periodVisits").value || 12);
+    const plan  = $("plan").value; // One of: Essential, Comfort, Concierge
+    const periodVisits = 12; // Default period visits since input was removed
 
     try {
+      // 1. Create user in Firebase Authentication
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       const uid = cred.user.uid;
 
+      // 2. Update the user's display name in Auth
       await updateProfile(cred.user, { displayName: name });
 
+      // 3. Create the user document in Firestore with the correct schema
       await setDoc(doc(db, "users", uid), {
         role,
         name,
         email,
+        address, // NEW: Address field included
         phone,
         plan,
         periodVisits,
@@ -186,7 +197,8 @@
       });
 
       msg.style.color = "#6bdc77";
-      msg.textContent = "Account created! Redirecting…";
+      msg.textContent = "Account created! You can now proceed to your dashboard.";
+      // If you prefer automatic navigation after signup, uncomment the next line and set your desired destination
       window.location.href = "dashboard.html";
     } catch (err) {
       msg.style.color = "#ff7a7a";
