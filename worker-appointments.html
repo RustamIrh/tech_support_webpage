@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+  /* FullCalendar event popover: force solid background/contrast */
+  .fc-popover, .fc-popover .fc-popover-body, .fc .fc-popover, .fc-theme-standard .fc-popover {
+    background: var(--card, #16161a) !important;
+    color: var(--text, #eaeaea) !important;
+    border: 1px solid var(--border, #2a2a2e) !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,.6) !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+  .fc-popover .fc-popover-header { 
+    background: rgba(255,255,255,.03) !important; 
+    border-bottom: 1px solid var(--border,#2a2a2e) !important;
+  }
+  .fc-popover .fc-popover-body a.btn {
+    border-radius: 10px;
+    padding: 6px 10px;
+    border: 1px solid var(--border,#2a2a2e);
+    color: var(--text,#eaeaea);
+    background: rgba(255,255,255,.03);
+    cursor: pointer;
+  }
+  .fc-popover .fc-popover-body a.btn:hover { background: rgba(214,179,91,.15); }
+</style>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Appointments — Click & Care</title>
+  <link rel="stylesheet" href="styles.css"/>
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.css" rel="stylesheet">
+
+  <style>
+    /* -------- Page scaffold -------- */
+    body { background: var(--background); color: var(--text); }
+    .page { max-width: 1200px; margin: 0 auto; padding: 28px 20px 60px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:12px; }
+    .legend { display:flex; gap:14px; align-items:center; font-size:.92rem; color:var(--muted); }
+    .swatch{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:6px}
+
+    .filters { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .chip { display:inline-flex; align-items:center; gap:8px; padding:6px 12px;
+            border:1px solid var(--border); border-radius:999px; background:var(--card);
+            font-size:.9rem; cursor:pointer; user-select:none; }
+    .chip input { transform: translateY(1px); }
+
+    #calendar { background: var(--card); border:1px solid var(--border);
+                border-radius: var(--radius); box-shadow: var(--shadow); padding: 10px; }
+
+    /* -------- FullCalendar dark theme tune -------- */
+    :root {
+      --fc-page-bg-color: transparent;
+      --fc-border-color: rgba(255,255,255,.08);
+      --fc-neutral-bg-color: rgba(255,255,255,.03);
+      --fc-list-event-hover-bg-color: rgba(255,255,255,.06);
+      --fc-today-bg-color: rgba(214,179,91,.08);
+      --fc-now-indicator-color: #f87171;
+    }
+    .fc .fc-toolbar-title { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .fc .fc-button { background: var(--bg-alt); border-color: var(--border); color: var(--text); }
+    .fc .fc-button:hover { filter: brightness(1.1); }
+    .fc .fc-col-header-cell-cushion, .fc .fc-daygrid-day-number { color: var(--muted); }
+    .fc .fc-daygrid-day-frame { padding: 2px; }
+
+    /* -------- Event pills (high-contrast) -------- */
+    .fc .fc-daygrid-event, .fc .fc-timegrid-event {
+      border-radius: 10px;
+      padding: 3px 8px;
+      border-width: 1px;
+      font-size: .86rem;
+      line-height: 1.15rem;
+    }
+    .evt-pending   { background: rgba(234,179,8,.16);  border-color: rgba(234,179,8,.42);  color: #facc15; }
+    .evt-scheduled { background: rgba(96,165,250,.16); border-color: rgba(96,165,250,.42); color: #93c5fd; }
+    .evt-completed { background: rgba(34,197,94,.16);  border-color: rgba(34,197,94,.42);  color: #86efac; }
+    /* small colored dot before title */
+    .evt-pending::before, .evt-scheduled::before, .evt-completed::before {
+      content:"";
+      display:inline-block; width:8px; height:8px; border-radius:999px; margin-right:6px; vertical-align:middle;
+    }
+    .evt-pending::before   { background:#eab308; }
+    .evt-scheduled::before { background:#60a5fa; }
+    .evt-completed::before { background:#22c55e; }
+
+    /* -------- Details modal (solid, readable) -------- */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6);
+             display: none; align-items: center; justify-content: center; }
+    .modal.open{ display:flex; }
+    .modal-card{
+      width:min(560px, 92vw);
+      background:#0f1117;           /* SOLID */
+      color:#e5e7eb;
+      border:1px solid #2b2f3a;
+      border-radius:16px;
+      padding:18px 18px 14px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.03) inset;
+    }
+    .modal-card h3{ margin:0 0 10px 0; font-size:1.05rem; }
+    .modal-card .muted{ color:#a1a1aa; }
+    .modal-card .kv { display:grid; grid-template-columns: 110px 1fr; gap:6px 12px; font-size:.95rem; }
+    .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:14px }
+    .btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--border);
+          background:var(--bg-alt); color:var(--text); cursor:pointer }
+    .btn-primary{ background:var(--brand); color:#111; border:none }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html"><span class="logo">CC</span><span class="brand-text">Click &amp; Care</span></a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="worker-dashboard.html">Dashboard</a></li>
+          <li><a href="worker-appointments.html" class="active">Appointments</a></li>
+          <li><a href="worker-clients.html">Clients</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="topbar">
+      <h1>My Appointments</h1>
+      <div class="legend">
+        <span><span class="swatch" style="background:#eab308"></span>Pending</span>
+        <span><span class="swatch" style="background:#60a5fa"></span>Scheduled</span>
+        <span><span class="swatch" style="background:#22c55e"></span>Completed</span>
+      </div>
+    </div>
+
+    <div class="filters">
+      <label class="chip"><input type="checkbox" id="fPending" checked> Pending</label>
+      <label class="chip"><input type="checkbox" id="fScheduled" checked> Scheduled</label>
+      <label class="chip"><input type="checkbox" id="fCompleted" checked> Completed</label>
+      <span style="margin-left:auto;color:var(--muted)">Use toolbar to switch month / week / day / list</span>
+    </div>
+
+    <div id="calendar"></div>
+  </main>
+
+  <!-- Quick details modal -->
+  <div class="modal" id="detailsModal" aria-hidden="true">
+    <div class="modal-card">
+      <h3 id="mTitle">Appointment</h3>
+      <div id="mBody" class="kv"></div>
+      <div class="modal-actions">
+        <a id="mClientLink" class="btn" href="#" target="_blank" rel="noopener">Open Client</a>
+        <button class="btn" id="mClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script type="module" src="worker-appointments.js"></script>
+</body>
+</html>
+

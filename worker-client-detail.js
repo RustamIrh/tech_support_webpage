@@ -63,31 +63,46 @@ onAuthStateChanged(auth, async (user) => {
 
   // Appointments
   try {
-    const qAppts = query(
-      collection(db, "appointments"),
-      where("clientUid", "==", uid),
-      orderBy("startAt", "desc")
-    );
-    const snap = await getDocs(qAppts);
-    elTbody.innerHTML = "";
-    if (snap.empty) {
-      elTbody.innerHTML = `<tr><td colspan="5" class="muted">No appointments yet.</td></tr>`;
-    } else {
-      snap.forEach((ds) => {
-        const a = ds.data();
-        elTbody.insertAdjacentHTML("beforeend", `
-          <tr>
-            <td>${a.service || "—"}</td>
-            <td>${a.startAt ? fmt(a.startAt) : "—"}</td>
-            <td>${a.status || "—"}</td>
-            <td>${a.technicianId || "—"}</td>
-            <td>${a.notes || ""}</td>
-          </tr>
-        `);
-      });
-    }
-  } catch (e) {
-    console.error("Appointments query failed:", e);
-    elTbody.innerHTML = `<tr><td colspan="5" style="color:#f88">Cannot read appointments. Create the suggested index, then refresh.</td></tr>`;
+  // 1) get current worker’s technicianId (to satisfy your rule)
+  const meSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
+  const techId = meSnap.exists() ? meSnap.data().technicianId : null;
+  if (!techId) {
+    elTbody.innerHTML = `<tr><td colspan="5" class="muted">Your profile is missing technicianId.</td></tr>`;
+    throw new Error("Missing technicianId on worker profile");
   }
+
+  // 2) use the URL uid as the client id
+  const clientUid = uid;
+
+  // 3) build the query that matches both rules + index
+  const qAppts = query(
+    collection(db, "appointments"),
+    where("clientUid", "==", clientUid),
+    where("technicianId", "==", techId),   // required by rules
+    orderBy("startAt", "desc")             // triggers the composite index
+  );
+
+  const snap = await getDocs(qAppts);
+
+  elTbody.innerHTML = "";
+  if (snap.empty) {
+    elTbody.innerHTML = `<tr><td colspan="5" class="muted">No appointments yet.</td></tr>`;
+  } else {
+    snap.forEach((ds) => {
+      const a = ds.data();
+      elTbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${a.service || "—"}</td>
+          <td>${a.startAt ? fmt(a.startAt) : "—"}</td>
+          <td>${a.status || "—"}</td>
+          <td>${a.technicianId || "—"}</td>
+          <td>${a.notes || ""}</td>
+        </tr>
+      `);
+    });
+  }
+} catch (e) {
+  console.error("Appointments query failed:", e);
+  elTbody.innerHTML = `<tr><td colspan="5" style="color:#f88">${e.message}</td></tr>`;
+}
 });

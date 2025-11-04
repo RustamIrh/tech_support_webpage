@@ -537,3 +537,41 @@ textarea {
         margin-top: 20px;
     }
 }
+
+/* FullCalendar popover fallback (if any still shows) */
+.fc-popover, .fc .fc-popover {
+  background: var(--card, #16161a) !important;
+  color: var(--text, #eaeaea) !important;
+  border: 1px solid var(--border, #2a2a2e) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6) !important;
+  opacity: 1 !important;
+}
+
+/* SweetAlert2 popup to match site */
+.swal2-popup {
+  background: var(--card, #16161a) !important;
+  color: var(--text, #eaeaea) !important;
+  border: 1px solid var(--border, #2a2a2e) !important;
+  box-shadow: var(--shadow, 0 12px 40px rgba(0,0,0,.6)) !important;
+}
+
+/* Use your site button look inside the modal */
+.swal2-popup .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border, #2a2a2e);
+  background: rgba(255,255,255,.03);
+  color: var(--text, #eaeaea);
+}
+.swal2-popup .btn:hover { background: rgba(214,179,91,.15); }
+.swal2-popup .btn-primary {
+  background: var(--primary, #d6b35b);
+  color: #111;
+  border-color: transparent;
+}
+.swal2-popup .btn-primary:hover { filter: brightness(0.95); }
