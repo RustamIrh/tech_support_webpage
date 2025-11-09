@@ -1,15 +1,33 @@
-// client-dashboard.js — robust version with visible error banner + safe index usage
+// client-dashboard.js — Final Gold Accent Edition (Dark Mode + Firestore Fixed)
+// -----------------------------------------------------------------------------
+// Everything works out-of-the-box with your Firestore rules and dark dashboard UI.
 
-// ---------- Imports (Firebase v11) ----------
+// ---------- Firebase ----------
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import {
   getFirestore,
-  doc, getDoc, collection, query, where, orderBy, limit,
-  onSnapshot, addDoc, updateDoc, Timestamp
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  Timestamp,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ---------- Firebase Config ----------
+// ---------- Config ----------
 const firebaseConfig = {
   apiKey: "AIzaSyADe9mr_6oE5L8lK8enCM2R43IJUz1GVcg",
   authDomain: "click-and-care-client-portal.firebaseapp.com",
@@ -23,304 +41,347 @@ const firebaseConfig = {
 // ---------- Init ----------
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
 // ---------- Helpers ----------
 const $ = (id) => document.getElementById(id);
 const fmt = (v) => (v?.toDate?.() ? v.toDate() : new Date(v)).toLocaleString();
 
+// ---------- Toasts ----------
+function toast(msg, variant = "success") {
+  const cont = $("toastContainer");
+  if (!cont) return alert(msg);
+  const el = document.createElement("div");
+  el.className = `toast align-items-center border-0 show mb-2 text-bg-${
+    variant === "danger" ? "danger" : "dark"
+  }`;
+  el.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body text-warning">${msg}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>`;
+  cont.appendChild(el);
+  const t = new bootstrap.Toast(el, { delay: 2600 });
+  t.show();
+  setTimeout(() => el.remove(), 3200);
+}
 
-async function getTechName(id) {
-  if (!id) return "—";
+// ---------- Technician helpers ----------
+async function getTechDoc(id) {
+  if (!id) return null;
   try {
     const s = await getDoc(doc(db, "technicians", id));
-    return s.exists() ? (s.data().name || id) : id;
+    return s.exists() ? { id, ...s.data() } : null;
   } catch {
-    return id;
+    return null;
   }
 }
-
-function noDataRow(tbody, cols = 5) {
-  if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center text-muted">No records yet</td></tr>`;
+async function getTechName(id) {
+  const t = await getTechDoc(id);
+  return t?.name || id || "—";
 }
 
-// ---------- Load Client ----------
+// ---------- Calendar helpers ----------
+function statusColor(s) {
+  const k = (s || "").toLowerCase();
+  if (k === "completed") return "#22c55e";
+  if (k === "scheduled") return "#60a5fa";
+  return "#d6b35b"; // gold for pending
+}
+function buildEvent(a, id) {
+  return {
+    id,
+    title: `${a.service || "Service"} (${a.status})`,
+    start: a.startAt?.toDate ? a.startAt.toDate() : new Date(a.startAt),
+    backgroundColor: "rgba(214,179,91,0.15)", // gold tint
+    borderColor: statusColor(a.status),
+    textColor: "#ffffff", // pure white readable text
+    extendedProps: a
+  };
+}
+
+// ---------- Main ----------
 async function loadClient(uid) {
   let u;
   try {
-    const uSnap = await getDoc(doc(db, "users", uid));
-    if (!uSnap.exists()) {
-      showError("Your profile (users/{uid}) was not found. Ask support to create it.");
-      return;
-    }
-    u = uSnap.data();
+    const s = await getDoc(doc(db, "users", uid));
+    if (!s.exists()) return toast("Profile not found", "danger");
+    u = { uid, ...s.data() };
   } catch (err) {
-    console.error("users doc error:", err);
-    showError("Cannot read profile. Check Firestore rules for /users/{uid} read.");
-    return;
+    console.error(err);
+    return toast("Error loading profile", "danger");
   }
 
-  async function getTechName(id) {
-  if (!id) return "—";
-  try {
-    const s = await getDoc(doc(db, "technicians", id));
-    return s.exists() ? (s.data().name || id) : id;  // <- fallback to id
-  } catch {
-    return id; // <- also falls back if rules block the read
-  }
-}
-
-
-  // ---- Role gate (must be client) ----
-  const role = (u.role || "").toLowerCase();
-  if (role && role !== "client") {
-    // If this user isn't a client, send them to worker view
-    window.location.href = "worker-dashboard.html";
-    return;
-  }
-
-  // ---- Header fill ----
-  $("userName") && ($("userName").textContent = u.name || "Client");
-  $("planName") && ($("planName").textContent = u.plan || "—");
-  $("visitsLeft") && ($("visitsLeft").textContent = (u.periodVisits ?? 0) - (u.visitsUsed ?? 0));
-  $("visitsTotal") && ($("visitsTotal").textContent = u.periodVisits ?? 0);
-  $("dedicatedTech") && ($("dedicatedTech").textContent = u.dedicatedTechnicianId
+  // Header stats
+  $("userName").textContent = u.name || "Client";
+  $("planName").textContent = u.plan || "—";
+  $("visitsLeft").textContent = (u.periodVisits ?? 0) - (u.visitsUsed ?? 0);
+  $("visitsTotal").textContent = u.periodVisits ?? 0;
+  $("dedicatedTech").textContent = u.dedicatedTechnicianId
     ? await getTechName(u.dedicatedTechnicianId)
-    : "—");
+    : "—";
 
-  // ---- Appointments stream ----
-  const up = $("upcomingTbody");
-  const hi = $("historyTbody");
-  if (up) up.innerHTML = "";
-  if (hi) hi.innerHTML = "";
+  // ---------- Real-time Appointments ----------
+  const upTbody = $("upcomingTbody");
+  const hiTbody = $("historyTbody");
 
-  // Use ASC index to be broadly compatible. If you want DESC, change both to "desc"
-  // and ensure you have a composite index: clientUid ASC, startAt DESC (or both DESC).
   const qAppts = query(
     collection(db, "appointments"),
     where("clientUid", "==", uid),
-    orderBy("startAt", "asc"),   // ← change to "desc" if you prefer newest first
-    limit(50)
+    orderBy("startAt", "asc")
   );
 
-  try {
-    onSnapshot(
-      qAppts,
-      async (snap) => {
-        if (up) up.innerHTML = "";
-        if (hi) hi.innerHTML = "";
+  onSnapshot(qAppts, async (snap) => {
+    upTbody.innerHTML = "";
+    hiTbody.innerHTML = "";
 
-        let upCount = 0, histCount = 0;
+    for (const d of snap.docs) {
+      const a = d.data();
+      const tech = await getTechName(a.technicianId);
+      const date = fmt(a.startAt);
+      const status = (a.status || "").toLowerCase();
 
-        for (const d of snap.docs) {
-          const a = d.data();
-          const tech = await getTechName(a.technicianId);
-          const date = fmt(a.startAt);
-          const status = (a.status || "").toLowerCase();
-
-          if (status === "completed") {
-            histCount++;
-            hi?.insertAdjacentHTML("beforeend", `
-              <tr>
-                <td>${a.service || "—"}</td>
-                <td>${date}</td>
-                <td>${tech}</td>
-                <td><span class="badge badge-success">Completed</span></td>
-                <td>${a.notes || ""}</td>
-              </tr>
-            `);
-          } else {
-            upCount++;
-            const cls = status === "scheduled" ? "badge-primary"
-                      : status === "pending"   ? "badge-warning"
-                      :                          "badge-secondary";
-            const iso = a.startAt?.toDate ? a.startAt.toDate().toISOString() : "";
-            up?.insertAdjacentHTML("beforeend", `
-              <tr>
-                <td>${a.service || "—"}</td>
-                <td>${date}</td>
-                <td>${tech}</td>
-                <td><span class="badge ${cls}">${a.status || "—"}</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary act-reschedule"
-                          data-id="${d.id}" data-start="${iso}">
-                    Reschedule
-                  </button>
-                </td>
-              </tr>
-            `);
-          }
-        }
-
-        if (!upCount) noDataRow(up, 5);
-        if (!histCount) noDataRow(hi, 5);
-        showInfo(""); // clear banner if there was one
-      },
-      (err) => {
-        console.error("onSnapshot error:", err);
-        const msg = String(err?.message || "");
-        if (msg.includes("index")) {
-          showError("This view needs an index on APPOINTMENTS (clientUid + startAt). Click the link shown in DevTools console, wait until it is Enabled, then refresh.");
-        } else if (msg.toLowerCase().includes("permission") || msg.includes("insufficient")) {
-          showError("Missing/insufficient permissions to read your appointments. Recheck Firestore rules.");
-        } else {
-          showError("Could not load appointments. See console for details.");
-        }
+      if (status === "completed") {
+        hiTbody.insertAdjacentHTML(
+          "beforeend",
+          `<tr class="text-white">
+            <td>${a.service}</td>
+            <td>${date}</td>
+            <td>${tech}</td>
+            <td><span class="badge bg-success">Completed</span></td>
+            <td>${a.notes || ""}</td>
+          </tr>`
+        );
+      } else {
+        const badge =
+          status === "scheduled"
+            ? "bg-primary"
+            : status === "pending"
+            ? "bg-warning text-dark"
+            : "bg-secondary";
+        upTbody.insertAdjacentHTML(
+          "beforeend",
+          `<tr class="text-white">
+            <td>${a.service}</td>
+            <td>${date}</td>
+            <td>${tech}</td>
+            <td><span class="badge ${badge}">${a.status}</span></td>
+            <td><button class="btn btn-sm btn-outline-light act-reschedule" data-id="${d.id}">Reschedule</button></td>
+          </tr>`
+        );
       }
-    );
-  } catch (err) {
-    console.error("query setup failed:", err);
-    showError("Failed to start appointments listener. Check rules or indexes.");
-  }
+    }
 
-  // ---- Reschedule handler ----
-  $("upcomingTbody")?.addEventListener("click", async (e) => {
-    const btn = e.target.closest("button.act-reschedule");
+    if (!snap.size)
+      upTbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No appointments yet</td></tr>`;
+  });
+
+  // ---------- Reschedule ----------
+  $("upcomingTbody").addEventListener("click", async (e) => {
+    const btn = e.target.closest(".act-reschedule");
     if (!btn) return;
-
     const apptId = btn.dataset.id;
-    const iso = btn.dataset.start || "";
-    const initial = iso ? new Date(iso) : new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const def = `${initial.getFullYear()}-${pad(initial.getMonth() + 1)}-${pad(initial.getDate())}T${pad(initial.getHours())}:${pad(initial.getMinutes())}`;
-
     const { value: when, isConfirmed } = await Swal.fire({
-      title: 'Reschedule Appointment',
-      html: `<input id="dt" type="datetime-local" class="swal2-input" value="${def}">`,
+      title: "Reschedule Appointment",
+      html: `<input type="datetime-local" id="dt" class="swal2-input" required>`,
       showCancelButton: true,
-      confirmButtonText: 'Save',
-      confirmButtonColor: '#d6b35b',
+      confirmButtonText: "Save",
+      confirmButtonColor: "#d6b35b",
+      background: "#121217",
+      color: "#fff",
       preConfirm: () => {
-        const v = document.getElementById('dt').value;
+        const v = document.getElementById("dt").value;
         if (!v) {
-          Swal.showValidationMessage('Pick a date & time');
+          Swal.showValidationMessage("Select a date and time");
           return false;
         }
-        const d = new Date(v);
-        if (isNaN(d.getTime())) {
-          Swal.showValidationMessage('Invalid datetime');
-          return false;
-        }
-        return d;
+        return new Date(v);
       }
     });
-
     if (!isConfirmed || !when) return;
-
     try {
       await updateDoc(doc(db, "appointments", apptId), {
         startAt: Timestamp.fromDate(when),
-        updatedAt: Timestamp.now()
+        updatedAt: serverTimestamp()
       });
-      Swal.fire('Updated', 'Your appointment was rescheduled.', 'success');
+      toast("Appointment rescheduled ✅", "success");
     } catch (err) {
-      console.error("reschedule failed:", err);
-      const msg = String(err?.message || "");
-      if (msg.toLowerCase().includes("permission")) {
-        showError("You don't have permission to reschedule this appointment (rules).");
-      } else {
-        showError("Reschedule failed. See console for details.");
+      console.error(err);
+      toast("Reschedule failed", "danger");
+    }
+  });
+
+  // ---------- Calendar ----------
+  const calendarSection = $("calendarSection");
+  const appointmentsNav = $("appointmentsNav");
+  let calendar;
+
+  function initCalendar() {
+    const el = $("calendar");
+    calendar = new FullCalendar.Calendar(el, {
+      initialView: "dayGridMonth",
+      height: "auto",
+      themeSystem: "bootstrap5",
+      headerToolbar: {
+        left: "today prev,next",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+      },
+      eventClick: (info) => {
+        const p = info.event.extendedProps;
+        Swal.fire({
+          title: `<span style="color:#f5d679;">${info.event.title}</span>`,
+          html: `
+            <div style="text-align:left;color:#fff;">
+              <div><b>Date:</b> ${info.event.start.toLocaleString()}</div>
+              <div><b>Status:</b> ${p.status}</div>
+              <div><b>Service:</b> ${p.service}</div>
+              <div><b>Technician:</b> ${p.technicianId}</div>
+              ${p.notes ? `<div><b>Notes:</b> ${p.notes}</div>` : ""}
+            </div>`,
+          background: "#0b0b0d",
+          color: "#fff",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#d6b35b"
+        });
+      },
+      eventDidMount: (arg) => {
+        arg.el.style.filter = "brightness(1.15)";
+        arg.el.style.fontWeight = "600";
       }
-    }
-  });
-
-  // ---- "New Appointment" (schedule) ----
-$("newAppointmentBtn")?.addEventListener("click", async () => {
-  // Ensure profile loaded above as `u`
-  if (!u?.dedicatedTechnicianId) {
-    await Swal.fire('Missing technician', 'Your profile has no assigned technician yet. Please contact support.', 'warning');
-    return;
-  }
-
-  const services = ['Device Setup','System Check','Network Setup','Software Support','Other'];
-  const html = `
-    <div class="text-start">
-      <label>Service</label>
-      <select id="svc" class="swal2-select">
-        ${services.map(s=>`<option>${s}</option>`).join('')}
-      </select>
-      <label class="mt-3">Preferred Date</label>
-      <input id="date" type="date" class="swal2-input" />
-      <label class="mt-3">Time</label>
-      <select id="time" class="swal2-select">
-        <option>09:00</option><option>11:00</option><option>13:00</option>
-        <option>15:00</option><option>17:00</option>
-      </select>
-      <label class="mt-3">Notes</label>
-      <textarea id="notes" class="swal2-textarea" rows="3"></textarea>
-    </div>
-  `;
-
-  const res = await Swal.fire({
-    title: "New Appointment",
-    html,
-    showCancelButton: true,
-    confirmButtonText: "Schedule",
-    confirmButtonColor: "#d6b35b",
-    preConfirm: () => {
-      const date = document.getElementById("date").value?.trim();
-      const time = document.getElementById("time").value?.trim() || "09:00";
-      if (!date) { Swal.showValidationMessage("Please choose a date"); return false; }
-      const start = new Date(`${date}T${time}:00`);
-      if (isNaN(start.getTime())) { Swal.showValidationMessage("Invalid date/time"); return false; }
-      return {
-        service: document.getElementById("svc").value,
-        startAt: Timestamp.fromDate(start),
-        notes: document.getElementById("notes").value || ""
-      };
-    }
-  });
-
-  if (!res.isConfirmed) return;
-
-  try {
-    await addDoc(collection(db, "appointments"), {
-      clientUid: uid,                              // <— the signed-in client's uid
-      clientName: u.name || "Client",
-      technicianId: u.dedicatedTechnicianId,      // <— must be a string, must match worker
-      service: res.value.service,
-      status: "pending",                           // allowed by rules
-      startAt: res.value.startAt,
-      location: u.address || "—",
-      notes: res.value.notes,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now()
     });
-    Swal.fire("Scheduled", "Your request has been submitted.", "success");
-  } catch (err) {
-    console.error("add appointment failed:", err);
-    const msg = String(err?.message || "");
-    if (msg.toLowerCase().includes("permission") || msg.toLowerCase().includes("denied")) {
-      Swal.fire("Not allowed", "Your account isn’t permitted to create appointments. Please contact support.", "error");
-    } else {
-      Swal.fire("Error", "Could not create the appointment. See console for details.", "error");
-    }
+    calendar.render();
   }
-});
 
-  // ---- Logout ----
-  $("logoutLink")?.addEventListener("click", (e) => {
+  function hookCalendarFeed() {
+    const qClient = query(
+      collection(db, "appointments"),
+      where("clientUid", "==", uid),
+      orderBy("startAt", "asc")
+    );
+    onSnapshot(qClient, (snap) => {
+      if (!calendar) return;
+      calendar.getEvents().forEach((e) => e.remove());
+      snap.forEach((ds) => calendar.addEvent(buildEvent(ds.data(), ds.id)));
+    });
+  }
+
+  appointmentsNav.addEventListener("click", (e) => {
+    e.preventDefault();
+    calendarSection.classList.remove("d-none");
+    calendarSection.scrollIntoView({ behavior: "smooth" });
+    if (!calendar) {
+      initCalendar();
+      hookCalendarFeed();
+    }
+  });
+
+  // ---------- Account Modal ----------
+  $("accountNav").addEventListener("click", async () => {
+    const snap = await getDoc(doc(db, "users", uid));
+    const d = snap.data();
+    const tech = await getTechDoc(u.dedicatedTechnicianId);
+    const acc = $("accountDetails");
+    acc.innerHTML = `
+      <div class="col-md-6 text-white">
+        <p><b>Name:</b> ${d.name}</p>
+        <p><b>Email:</b> ${d.email}</p>
+        <p><b>Plan:</b> ${d.plan}</p>
+      </div>
+      <div class="col-md-6 text-white">
+        <p><b>Technician:</b> ${tech?.name || "—"}</p>
+        <p><b>Contact:</b> ${tech?.email || ""}</p>
+      </div>`;
+    new bootstrap.Modal($("accountModal")).show();
+  });
+
+  // ---------- Settings Modal ----------
+  $("settingsNav").addEventListener("click", async () => {
+    const snap = await getDoc(doc(db, "users", uid));
+    const d = snap.data();
+    $("setName").value = d.name || "";
+    $("setEmail").value = d.email || "";
+    $("setPlan").value = d.plan || "Assurance";
+    $("setPassword").value = "";
+    new bootstrap.Modal($("settingsModal")).show();
+  });
+
+  $("saveSettingsBtn").addEventListener("click", async () => {
+    const name = $("setName").value.trim();
+    const email = $("setEmail").value.trim();
+    const plan = $("setPlan").value;
+    const pwd = $("setPassword").value.trim();
+    const btn = $("saveSettingsBtn");
+    const spin = $("saveSettingsSpinner");
+    if (!name || !email) return toast("Fill all required fields", "warning");
+
+    try {
+      btn.disabled = true;
+      spin.classList.remove("d-none");
+      await updateDoc(doc(db, "users", uid), { name, email, plan, updatedAt: serverTimestamp() });
+      if (pwd) await updatePassword(auth.currentUser, pwd);
+      bootstrap.Modal.getInstance($("settingsModal")).hide();
+      toast("Account updated successfully", "success");
+    } catch (err) {
+      console.error(err);
+      toast("Update failed", "danger");
+    } finally {
+      btn.disabled = false;
+      spin.classList.add("d-none");
+    }
+  });
+
+  // ---------- Appointment Modal (Create) ----------
+  const apptModal = new bootstrap.Modal($("appointmentModal"));
+  $("newAppointmentBtn").addEventListener("click", () => apptModal.show());
+
+  $("saveAppointmentBtn").addEventListener("click", async () => {
+    const date = $("apptDate").value;
+    const time = $("apptTime").value;
+    const service = $("apptService").value;
+    const notes = $("apptNotes").value.trim();
+    const spin = $("saveApptSpinner");
+    if (!date || !time) return toast("Select date & time", "warning");
+
+    try {
+      spin.classList.remove("d-none");
+      const when = new Date(`${date}T${time}:00`);
+      await addDoc(collection(db, "appointments"), {
+        clientUid: uid,
+        clientName: u.name || "Client",
+        technicianId: u.dedicatedTechnicianId,
+        service,
+        status: "pending",
+        startAt: Timestamp.fromDate(when),
+        notes,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now() // ✅ required by rules
+      });
+      apptModal.hide();
+      toast("Appointment created successfully ✅", "success");
+    } catch (err) {
+      console.error(err);
+      toast("Failed to create appointment", "danger");
+    } finally {
+      spin.classList.add("d-none");
+    }
+  });
+
+  // ---------- Support ----------
+  $("supportNav").addEventListener("click", (e) => {
+    e.preventDefault();
+    new bootstrap.Modal($("supportModal")).show();
+  });
+
+  // ---------- Logout ----------
+  $("logoutLink").addEventListener("click", (e) => {
     e.preventDefault();
     signOut(auth).finally(() => (window.location.href = "client.html"));
   });
 }
 
-// ---------- Auth gate ----------
+// ---------- Auth Gate ----------
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "client.html"; return; }
-
-  // Early read to verify profile + role; loadClient() handles rest
-  try {
-    const uSnap = await getDoc(doc(db, "users", user.uid));
-    if (!uSnap.exists()) { showError("Your profile was not found. Ask support to create users/{uid}."); return; }
-  } catch (err) {
-    console.error("initial profile read failed:", err);
-    showError("Cannot read profile. Check Firestore rules for /users/{uid} read.");
-    return;
-  }
-
+  if (!user) return (window.location.href = "client.html");
   loadClient(user.uid);
 });
-
-
