@@ -46,34 +46,29 @@ async function setStatus(apptId, newStatus) {
 }
 
 async function completeAppointment(apptId) {
-  await runTransaction(db, async (tx) => {
-    const apptRef = doc(db, "appointments", apptId);
+  const apptRef = doc(db, "appointments", apptId);
 
-    // 1) READ everything first
-    const apptSnap = await tx.get(apptRef);
+  // 1) Update the appointment status first (single write, should pass rules)
+  await updateDoc(apptRef, { status: "completed", updatedAt: serverTimestamp() });
+
+  // 2) Best-effort bump the client counters (separate write so step 1 isn't rolled back)
+  try {
+    const apptSnap = await getDoc(apptRef);
     if (!apptSnap.exists()) return;
     const appt = apptSnap.data();
+    if (!appt.clientUid) return;
 
-    if ((appt.status || "").toLowerCase() === "completed") return;
-
-    let userRef = null;
-    let userSnap = null;
-    if (appt.clientUid) {
-      userRef = doc(db, "users", appt.clientUid);
-      userSnap = await tx.get(userRef);
-    }
-
-    // 2) WRITE after all reads
-    tx.update(apptRef, { status: "completed", updatedAt: serverTimestamp() });
-
-    if (userRef && userSnap?.exists()) {
-      tx.update(userRef, {
-        visitsUsed: increment(1),
-        lastCompletedAt: serverTimestamp()
-      });
-    }
-  });
+    const userRef = doc(db, "users", appt.clientUid);
+    await updateDoc(userRef, {
+      visitsUsed: increment(1),
+      lastCompletedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    // If rules block this, we still keep the appointment completed
+    console.warn("Completed appt, but could not bump client counters:", err);
+  }
 }
+
 
 // ---- Main ----
 onAuthStateChanged(auth, async (user) => {
