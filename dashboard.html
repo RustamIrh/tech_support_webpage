@@ -320,6 +320,122 @@
     </div>
   </div>
 
+  <!-- Billing Modal -->
+  <div class="modal fade" id="billingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Billing & Plans</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted mb-3">
+            Choose the product that fits your needs. You’ll be redirected to a secure Stripe checkout page for payment.
+          </p>
+          <div class="row g-3" id="billingPlans">
+            <div class="col-md-6">
+              <div class="p-3 border rounded bg-dark text-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="m-0 text-warning">Concierge Care</h6>
+                  <span class="badge bg-primary">$149/mo</span>
+                </div>
+                <ul class="mb-3 small">
+                  <li>Dedicated technician</li>
+                  <li>Proactive & preventive white-glove care</li>
+                  <li>$69/hr preferred rate</li>
+                </ul>
+                <button class="btn btn-primary w-100 billing-link-btn" data-link-id="conciergeMonthly">
+                  <i class="mdi mdi-credit-card"></i> Pay with Stripe
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 border rounded bg-dark text-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="m-0 text-warning">Annual Membership</h6>
+                  <span class="badge bg-success">$159/yr</span>
+                </div>
+                <ul class="mb-3 small">
+                  <li>One annual check-in included</li>
+                  <li>Priority access</li>
+                  <li>$89/hr member rate</li>
+                </ul>
+                <button class="btn btn-success w-100 billing-link-btn" data-link-id="annualMembership">
+                  <i class="mdi mdi-credit-card"></i> Pay with Stripe
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 border rounded bg-dark text-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="m-0 text-warning">One Visit / Month Promo</h6>
+                  <span class="badge bg-primary">$129/mo</span>
+                </div>
+                <ul class="mb-3 small">
+                  <li>1 visit per month</li>
+                  <li>Designed to convert into membership</li>
+                </ul>
+                <button class="btn btn-primary w-100 billing-link-btn" data-link-id="monthlyPromo">
+                  <i class="mdi mdi-credit-card"></i> Pay with Stripe
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 border rounded bg-dark text-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="m-0 text-warning">One Annual Check-in Promo</h6>
+                  <span class="badge bg-success">$135/yr</span>
+                </div>
+                <ul class="mb-3 small">
+                  <li>Includes annual check-in</li>
+                  <li>Priority access</li>
+                </ul>
+                <button class="btn btn-success w-100 billing-link-btn" data-link-id="annualPromo">
+                  <i class="mdi mdi-credit-card"></i> Pay with Stripe
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 border rounded bg-dark text-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="m-0 text-warning">Welcome Flight Fee</h6>
+                  <span class="badge bg-info text-dark">$99</span>
+                </div>
+                <ul class="mb-3 small">
+                  <li>One-time flight fee</li>
+                </ul>
+                <button class="btn btn-info w-100 billing-link-btn" data-link-id="welcomeFlightFee">
+                  <i class="mdi mdi-credit-card"></i> Pay with Stripe
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 border rounded bg-dark text-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="m-0 text-warning">Non-member Hourly</h6>
+                  <span class="badge bg-danger">$190/hr</span>
+                </div>
+                <ul class="mb-3 small">
+                  <li>No priority access</li>
+                  <li>No dedicated technician</li>
+                  <li>Pay-as-you-go</li>
+                </ul>
+                <button class="btn btn-outline-light w-100 billing-link-btn" data-link-id="nonMemberHourly">
+                  <i class="mdi mdi-credit-card"></i> Pay with Stripe
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Support Modal -->
   <div class="modal fade" id="supportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">

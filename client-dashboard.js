@@ -367,6 +367,34 @@ async function loadClient(uid) {
     }
   });
 
+  // ---------- Billing (Stripe Payment Links) ----------
+  const STRIPE_LINKS = {
+    conciergeMonthly: "https://buy.stripe.com/14A28s1vq6uQg13gO30kE02", // Concierge Care $149/mo
+    annualMembership: "https://buy.stripe.com/3cIfZi8XS7yUeWZeFV0kE00", // Annual Membership $159/yr
+    monthlyPromo: "https://buy.stripe.com/4gM28sa1Wf1mcOR41h0kE01", // One Visit / Month Promo $129/mo
+    annualPromo: "https://buy.stripe.com/cNidRaca4aL61699lB0kE03", // One Annual Check-in Promo $135/yr
+    welcomeFlightFee: "https://buy.stripe.com/4gMdRa5LGbPa4il69p0kE04", // Welcome Flat Fee $99
+    nonMemberHourly: "https://buy.stripe.com/bJebJ26PKdXidSV55l0kE05" // Non-member Hourly $190/hr
+  };
+
+  $("billingNav").addEventListener("click", (e) => {
+    e.preventDefault();
+    new bootstrap.Modal($("billingModal")).show();
+  });
+
+  document.querySelectorAll(".billing-link-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const linkId = btn.dataset.linkId;
+      const url = STRIPE_LINKS[linkId];
+      if (!url) {
+        toast("Add a Stripe payment link for this product in client-dashboard.js", "warning");
+        return;
+      }
+      window.open(url, "_blank");
+    });
+  });
+
+
   // ---------- Support ----------
   $("supportNav").addEventListener("click", (e) => {
     e.preventDefault();
