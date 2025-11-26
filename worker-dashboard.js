@@ -58,11 +58,18 @@ async function completeAppointment(apptId) {
     const appt = apptSnap.data();
     if (!appt.clientUid) return;
 
-    const userRef = doc(db, "users", appt.clientUid);
-    await updateDoc(userRef, {
-      visitsUsed: increment(1),
-      lastCompletedAt: serverTimestamp(),
-    });
+  const userRef = doc(db, "users", appt.clientUid);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) return;
+
+  const userData = userSnap.data();
+  const currentVisits = Number(userData.visitsUsed ?? 0) || 0;
+
+  await updateDoc(userRef, {
+    visitsUsed: currentVisits + 1,
+    lastCompletedAt: serverTimestamp(),
+  });
+
   } catch (err) {
     // If rules block this, we still keep the appointment completed
     console.warn("Completed appt, but could not bump client counters:", err);

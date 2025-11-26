@@ -88,10 +88,18 @@ async function completeAppointment(apptId) {
     if (!appt.clientUid) return;
 
     const userRef = doc(db, "users", appt.clientUid);
+
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return;
+
+    const userData = userSnap.data();
+    const currentVisits = Number(userData.visitsUsed ?? 0) || 0;
+
     await updateDoc(userRef, {
-      visitsUsed: increment(1),
+      visitsUsed: currentVisits + 1,
       lastCompletedAt: serverTimestamp()
     });
+
   } catch (err) {
     console.warn("Completed appt, but could not bump client counters:", err);
   }
