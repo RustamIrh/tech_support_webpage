@@ -72,28 +72,31 @@ async function setStatus(apptId, newStatus) {
 }
 
 async function completeAppointment(apptId) {
-  await runTransaction(db, async (tx) => {
-    const apptRef = doc(db, "appointments", apptId);
-    const apptSnap = await tx.get(apptRef);
-    if (!apptSnap.exists()) return;
+  const apptRef = doc(db, "appointments", apptId);
 
-    const appt = apptSnap.data();
-    if ((appt.status || "").toLowerCase() === "completed") return;
-
-    tx.update(apptRef, { status: "completed", updatedAt: serverTimestamp() });
-
-    if (appt.clientUid) {
-      const userRef = doc(db, "users", appt.clientUid);
-      const userSnap = await tx.get(userRef);
-      if (userSnap.exists()) {
-        tx.update(userRef, {
-          visitsUsed: increment(1),
-          lastCompletedAt: serverTimestamp()
-        });
-      }
-    }
+  // 1) Mark the appointment as completed
+  await updateDoc(apptRef, {
+    status: "completed",
+    updatedAt: serverTimestamp()
   });
+
+  // 2) Best-effort bump the client counters
+  try {
+    const apptSnap = await getDoc(apptRef);
+    if (!apptSnap.exists()) return;
+    const appt = apptSnap.data();
+    if (!appt.clientUid) return;
+
+    const userRef = doc(db, "users", appt.clientUid);
+    await updateDoc(userRef, {
+      visitsUsed: increment(1),
+      lastCompletedAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.warn("Completed appt, but could not bump client counters:", err);
+  }
 }
+
 
 // ---- PDF upload ----
 async function uploadPdfForAppointment(apptId, file, currentUser) {
