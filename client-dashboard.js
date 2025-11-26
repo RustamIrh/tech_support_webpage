@@ -354,6 +354,7 @@ async function loadClient(uid) {
         status: "pending",
         startAt: Timestamp.fromDate(when),
         notes,
+        location: u.address || "", 
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now() // ✅ required by rules
       });
