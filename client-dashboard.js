@@ -202,6 +202,7 @@ async function loadClient(uid) {
     try {
       await updateDoc(doc(db, "appointments", apptId), {
         startAt: Timestamp.fromDate(when),
+        status: "pending",
         updatedAt: serverTimestamp()
       });
       toast("Appointment rescheduled ✅", "success");
