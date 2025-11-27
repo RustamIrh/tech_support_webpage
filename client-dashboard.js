@@ -374,7 +374,7 @@ async function loadClient(uid) {
     annualMembership: "https://buy.stripe.com/3cIfZi8XS7yUeWZeFV0kE00", // Annual Membership $159/yr
     monthlyPromo: "https://buy.stripe.com/4gM28sa1Wf1mcOR41h0kE01", // One Visit / Month Promo $129/mo
     annualPromo: "https://buy.stripe.com/cNidRaca4aL61699lB0kE03", // One Annual Check-in Promo $135/yr
-    welcomeFlightFee: "https://buy.stripe.com/4gMdRa5LGbPa4il69p0kE04", // Welcome Flat Fee $99
+    welcomeFlightFee: "https://buy.stripe.com/00w00kfmgdXi3ehdBR0kE06", // Welcome Flat Fee $99
     nonMemberHourly: "https://buy.stripe.com/bJebJ26PKdXidSV55l0kE05" // Non-member Hourly $190/hr
   };
 
