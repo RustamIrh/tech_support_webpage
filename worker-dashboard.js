@@ -81,7 +81,7 @@ async function completeAppointment(apptId) {
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "worker-login.html"; return; }
 
-  // 1️⃣ Load profile
+  // Load profile
   const profileSnap = await getDoc(doc(db, "users", user.uid));
   if (!profileSnap.exists()) { 
     console.warn("No users/{uid} profile for this worker."); 
@@ -90,14 +90,14 @@ onAuthStateChanged(auth, async (user) => {
   }
   const worker = profileSnap.data();
 
-  // 2️⃣ Role Gate — only technicians may view this page
+  // Role Gate — only technicians may view this page
   const role = (worker.role || "").toLowerCase();
   if (role !== "technician") {
     window.location.href = "dashboard.html"; // redirect clients away
     return;
   }
 
-  // 3️⃣ Header Info
+  //Header Info
   const name = worker.name || user.displayName || user.email || "Worker";
   if (elWorkerName) elWorkerName.textContent = name;
   if (elWorkerRole) elWorkerRole.textContent = worker.role || "Technician";
@@ -106,7 +106,7 @@ onAuthStateChanged(auth, async (user) => {
     elWorkerAvatar.textContent = initials || "W";
   }
 
-  // 4️⃣ Technician ID
+  //Technician ID
   const techId = worker.technicianId || worker.dedicatedTechnicianId;
   if (!techId) { console.warn("users/{uid} has no technicianId/dedicatedTechnicianId."); return; }
 
@@ -145,7 +145,7 @@ onAuthStateChanged(auth, async (user) => {
         if (status === "completed") completedLast30++;
       }
 
-      // 🧠 Skip rendering completed appointments
+      // Skip rendering completed appointments
       if (status === "completed") return;
 
       const statusClass =
@@ -182,7 +182,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   });
 
-  // 6️⃣ Action handlers (buttons)
+  //Action handlers (buttons)
   elAppointmentsBody?.addEventListener("click", async (e) => {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
@@ -198,7 +198,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   });
 
-  // 7️⃣ Logout
+  // Logout
   $("logoutLink")?.addEventListener("click", (e) => {
     e.preventDefault();
     signOut(auth).finally(() => (window.location.href = "worker-login.html"));

@@ -1,6 +1,5 @@
-// client-dashboard.js — Final Gold Accent Edition (Dark Mode + Firestore Fixed)
+// client-dashboard.js 
 // -----------------------------------------------------------------------------
-// Everything works out-of-the-box with your Firestore rules and dark dashboard UI.
 
 // ---------- Firebase ----------
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -357,7 +356,7 @@ async function loadClient(uid) {
         notes,
         location: u.address || "", 
         createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now() // ✅ required by rules
+        updatedAt: Timestamp.now() // required by rules
       });
       apptModal.hide();
       toast("Appointment created successfully ✅", "success");
