@@ -145,7 +145,6 @@
           <a href="#" id="accountNav"><i class="mdi mdi-account-circle"></i> My Account</a>
           <a href="#" id="billingNav"><i class="mdi mdi-credit-card"></i> Billing</a>
           <a href="#" id="supportNav"><i class="mdi mdi-headset"></i> Support</a>
-          <a href="#" id="settingsNav"><i class="mdi mdi-cog"></i> Settings</a>
         </nav>
       </div>
       <a href="client.html" id="logoutLink" class="sidebar-nav mt-4">
@@ -296,15 +295,17 @@
             <input type="text" id="setName" class="form-control" required>
             <label class="form-label">Email</label>
             <input type="email" id="setEmail" class="form-control" required>
-            <label class="form-label">Password</label>
+            <label class="form-label">New Password</label>
             <div class="input-group">
               <input type="password" id="setPassword" class="form-control" placeholder="Leave blank to keep current">
               <button class="btn btn-outline-secondary" type="button" id="toggleSetPwd"><i class="mdi mdi-eye"></i></button>
             </div>
+            <label class="form-label mt-2">Current Password (required to change password)</label>
+            <input type="password" id="setCurrentPassword" class="form-control" placeholder="Only needed if setting a new password">
             <label class="form-label">Plan</label>
             <select id="setPlan" class="form-select">
               <option value="Assurance">Assurance</option>
-              <option value="Confidant">Comfort</option>
+              <option value="Comfort">Comfort</option>
               <option value="Concierge">Concierge</option>
             </select>
           </form>

@@ -8,6 +8,7 @@ import {
   onAuthStateChanged,
   signOut,
   updatePassword,
+  updateEmail,
   EmailAuthProvider,
   reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
@@ -41,6 +42,7 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+let currentUserData = null;
 
 // ---------- Helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -106,6 +108,7 @@ async function loadClient(uid) {
     const s = await getDoc(doc(db, "users", uid));
     if (!s.exists()) return toast("Profile not found", "danger");
     u = { uid, ...s.data() };
+    currentUserData = u;
   } catch (err) {
     console.error(err);
     return toast("Error loading profile", "danger");
@@ -309,35 +312,72 @@ async function loadClient(uid) {
   });
 
   // ---------- Settings Modal ----------
-  $("settingsNav").addEventListener("click", async () => {
-    const snap = await getDoc(doc(db, "users", uid));
-    const d = snap.data();
-    $("setName").value = d.name || "";
-    $("setEmail").value = d.email || "";
-    $("setPlan").value = d.plan || "Assurance";
-    $("setPassword").value = "";
-    new bootstrap.Modal($("settingsModal")).show();
+  $("toggleSetPwd").addEventListener("click", () => {
+    const field = $("setPassword");
+    const isHidden = field.type === "password";
+    field.type = isHidden ? "text" : "password";
+    const icon = document.querySelector("#toggleSetPwd i");
+    if (icon) icon.className = isHidden ? "mdi mdi-eye-off" : "mdi mdi-eye";
   });
+
+  const settingsNav = $("settingsNav");
+  if (settingsNav) {
+    settingsNav.addEventListener("click", async () => {
+      const snap = await getDoc(doc(db, "users", uid));
+      const d = snap.data();
+      $("setName").value = d.name || "";
+      $("setEmail").value = d.email || auth.currentUser?.email || "";
+      const planSelect = $("setPlan");
+      planSelect.value = d.plan || "Assurance";
+      // keep unusual plan selectable without breaking the form
+      if (planSelect.value !== (d.plan || "Assurance")) {
+        const opt = document.createElement("option");
+        opt.value = d.plan;
+        opt.textContent = d.plan;
+        planSelect.appendChild(opt);
+        planSelect.value = d.plan;
+      }
+      $("setPassword").value = "";
+      $("setCurrentPassword").value = "";
+      new bootstrap.Modal($("settingsModal")).show();
+    });
+  }
 
   $("saveSettingsBtn").addEventListener("click", async () => {
     const name = $("setName").value.trim();
     const email = $("setEmail").value.trim();
     const plan = $("setPlan").value;
-    const pwd = $("setPassword").value.trim();
+    const newPwd = $("setPassword").value.trim();
+    const curPwd = $("setCurrentPassword").value.trim();
     const btn = $("saveSettingsBtn");
     const spin = $("saveSettingsSpinner");
     if (!name || !email) return toast("Fill all required fields", "warning");
+    if (newPwd && newPwd.length < 6) return toast("Password must be at least 6 characters", "warning");
+    const user = auth.currentUser;
+    const needEmailChange = user?.email && email !== user.email;
+    const needsReauth = newPwd || needEmailChange;
+    if (needsReauth && !curPwd) return toast("Enter current password to update email or password", "warning");
 
     try {
       btn.disabled = true;
       spin.classList.remove("d-none");
+      if (needsReauth) {
+        const cred = EmailAuthProvider.credential(user.email, curPwd);
+        await reauthenticateWithCredential(user, cred);
+      }
+      if (needEmailChange) await updateEmail(user, email);
+      if (newPwd) await updatePassword(user, newPwd);
+
       await updateDoc(doc(db, "users", uid), { name, email, plan, updatedAt: serverTimestamp() });
-      if (pwd) await updatePassword(auth.currentUser, pwd);
+
+      currentUserData = { ...(currentUserData || {}), name, email, plan };
+      $("userName").textContent = name || "Client";
+      $("planName").textContent = plan || "—";
       bootstrap.Modal.getInstance($("settingsModal")).hide();
       toast("Account updated successfully", "success");
     } catch (err) {
       console.error(err);
-      toast("Update failed", "danger");
+      toast(err.message || "Update failed", "danger");
     } finally {
       btn.disabled = false;
       spin.classList.add("d-none");
