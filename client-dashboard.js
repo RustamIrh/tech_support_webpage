@@ -123,6 +123,14 @@ async function loadClient(uid) {
   // ---------- Real-time Appointments ----------
   const upTbody = $("upcomingTbody");
   const hiTbody = $("historyTbody");
+  const techNameCache = new Map();
+  const fetchTechName = async (id) => {
+    if (!id) return "—";
+    if (techNameCache.has(id)) return techNameCache.get(id);
+    const name = await getTechName(id);
+    techNameCache.set(id, name);
+    return name;
+  };
 
   const qAppts = query(
     collection(db, "appointments"),
@@ -130,19 +138,20 @@ async function loadClient(uid) {
     orderBy("startAt", "asc")
   );
 
+  let renderVersion = 0;
   onSnapshot(qAppts, async (snap) => {
-    upTbody.innerHTML = "";
-    hiTbody.innerHTML = "";
+    const myVersion = ++renderVersion;
+    const upcomingRows = [];
+    const historyRows = [];
 
     for (const d of snap.docs) {
       const a = d.data();
-      const tech = await getTechName(a.technicianId);
+      const tech = await fetchTechName(a.technicianId);
       const date = fmt(a.startAt);
       const status = (a.status || "").toLowerCase();
 
       if (status === "completed") {
-        hiTbody.insertAdjacentHTML(
-          "beforeend",
+        historyRows.push(
           `<tr class="text-white">
             <td>${a.service}</td>
             <td>${date}</td>
@@ -158,8 +167,7 @@ async function loadClient(uid) {
             : status === "pending"
             ? "bg-warning text-dark"
             : "bg-secondary";
-        upTbody.insertAdjacentHTML(
-          "beforeend",
+        upcomingRows.push(
           `<tr class="text-white">
             <td>${a.service}</td>
             <td>${date}</td>
@@ -171,8 +179,13 @@ async function loadClient(uid) {
       }
     }
 
-    if (!snap.size)
-      upTbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No appointments yet</td></tr>`;
+    // Drop stale renders triggered before this loop finished (e.g., after a reschedule update)
+    if (myVersion !== renderVersion) return;
+
+    upTbody.innerHTML = upcomingRows.length
+      ? upcomingRows.join("")
+      : `<tr><td colspan="5" class="text-center text-muted">No appointments yet</td></tr>`;
+    hiTbody.innerHTML = historyRows.join("");
   });
 
   // ---------- Reschedule ----------
