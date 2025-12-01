@@ -225,7 +225,7 @@ async function loadClient(uid) {
         status: "pending",
         updatedAt: serverTimestamp()
       });
-      toast("Appointment rescheduled ✅", "success");
+      // No toast on success to keep UI clean
     } catch (err) {
       console.error(err);
       toast("Reschedule failed", "danger");
@@ -403,7 +403,12 @@ async function loadClient(uid) {
 
     try {
       spin.classList.remove("d-none");
-      const when = new Date(`${date}T${time}:00`);
+      const [year, month, day] = date.split("-").map((v) => Number(v));
+      const [hour, minute] = time.split(":").map((v) => Number(v));
+      const when = new Date(year, (month || 1) - 1, day, hour, minute);
+      if (Number.isNaN(when.getTime())) {
+        throw new Error("Invalid date/time");
+      }
       await addDoc(collection(db, "appointments"), {
         clientUid: uid,
         clientName: u.name || "Client",
@@ -417,7 +422,7 @@ async function loadClient(uid) {
         updatedAt: Timestamp.now() // required by rules
       });
       apptModal.hide();
-      toast("Appointment created successfully ✅", "success");
+      // Leave UI quiet on success per request
     } catch (err) {
       console.error(err);
       toast("Failed to create appointment", "danger");
