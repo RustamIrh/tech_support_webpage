@@ -83,20 +83,25 @@ async function getTechName(id) {
 }
 
 // ---------- Calendar helpers ----------
-function statusColor(s) {
+function eventPalette(s) {
   const k = (s || "").toLowerCase();
-  if (k === "completed") return "#22c55e";
-  if (k === "scheduled") return "#60a5fa";
-  return "#d6b35b"; // gold for pending
+  if (k === "completed") {
+    return { bg: "rgba(34,197,94,0.32)", border: "#22c55e", text: "#f3fff4" };
+  }
+  if (k === "scheduled") {
+    return { bg: "rgba(96,165,250,0.28)", border: "#60a5fa", text: "#f3f7ff" };
+  }
+  return { bg: "rgba(214,179,91,0.35)", border: "#f8d26a", text: "#fff8dc" }; // gold for pending
 }
 function buildEvent(a, id) {
+  const palette = eventPalette(a.status);
   return {
     id,
     title: `${a.service || "Service"} (${a.status})`,
     start: a.startAt?.toDate ? a.startAt.toDate() : new Date(a.startAt),
-    backgroundColor: "rgba(214,179,91,0.15)", // gold tint
-    borderColor: statusColor(a.status),
-    textColor: "#ffffff", // pure white readable text
+    backgroundColor: palette.bg,
+    borderColor: palette.border,
+    textColor: palette.text,
     extendedProps: a
   };
 }

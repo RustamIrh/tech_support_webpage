@@ -111,24 +111,84 @@
     .btn-primary:hover { background: #e6c76b; }
 
     /* FullCalendar dark readability */
-    .fc { color: #fff; }
-    .fc-toolbar-title { color: #f5d679; }
-    .fc .fc-button { border: 1px solid #333; background: #1b1b21; color:#fff; }
-    .fc .fc-button-primary:hover { background:#2a2a31; }
-    .fc-daygrid-day-number { color:#fff; }
-    .fc-event { border: none !important; color: #0b0b0d !important; font-weight: 600; }
+    .calendar-card {
+      background: linear-gradient(180deg, #101018, #0c0c12);
+      border: 1px solid rgba(214,179,91,.18);
+      box-shadow: 0 20px 45px rgba(0,0,0,.45);
+    }
+    .calendar-card h5 { color: var(--brand, #d6b35b); font-weight: 700; letter-spacing: .02em; }
+    .fc { color: #f7f7fb; }
+    .fc .fc-toolbar.fc-header-toolbar { margin-bottom: 1.5rem; }
+    .fc-toolbar-title {
+      color: #f5d679;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-size: 1.2rem;
+    }
+    .fc .fc-button {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      color:#f9f9fb;
+      border-radius: 10px;
+      padding:.35rem .9rem;
+      text-transform: capitalize;
+    }
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:hover {
+      background: rgba(214,179,91,.18);
+      color:#f5d679;
+    }
+    .fc-theme-standard .fc-scrollgrid { border: 1px solid rgba(255,255,255,.08); }
+    .fc-theme-standard td,
+    .fc-theme-standard th { border-color: rgba(255,255,255,.08); }
+    .fc-theme-standard .fc-col-header-cell {
+      background: rgba(8,8,12,.96);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .fc-theme-standard .fc-col-header-cell-cushion {
+      color:#f3f5ff;
+      font-size:.9rem;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+    }
+    .fc-daygrid-day { background: rgba(8,8,12,.9); }
+    .fc-daygrid-day-top { flex-direction: row; padding:.35rem; }
+    .fc-daygrid-day-number { color:#fff; font-weight:600; }
+    .fc-daygrid-day.fc-day-today { background: rgba(214,179,91,.15); }
+    .fc-daygrid-day.fc-day-other { opacity:.45; }
+    .fc-event {
+      border-radius: 10px;
+      border-width: 1px !important;
+      padding: 4px 8px;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(0,0,0,.35);
+      color: #fff9df !important;
+      backdrop-filter: blur(4px);
+    }
+    .fc-event .fc-event-main { color: inherit; letter-spacing: .01em; }
+    .fc-event .fc-event-title,
+    .fc-event .fc-event-time { color: inherit !important; }
+    .fc .fc-list-table { background: rgba(8,8,12,.95); }
+    .fc-list-sticky .fc-list-day { background: transparent; }
+    .fc .fc-list-day-cushion {
+      background: linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,255,255,.72));
+      color:#b48c2c;
+      font-size:.9rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+    }
+    .fc .fc-list-event-time,
+    .fc .fc-list-event-title { color:#fff9df; font-weight:600; }
+    .fc .fc-list-event:hover td { background: rgba(214,179,91,.08); }
 
     @media (max-width: 800px) {
       .dashboard-container { grid-template-columns: 1fr; }
       .sidebar { position: relative; height:auto; padding:1.5rem; }
     }
-
-        /* Force white event text on the dark calendar */
-        .fc-event-title,
-        .fc-event-time,
-        .fc-event {
-          color: #ffffff !important;
-}
 
   </style>
 </head>
@@ -210,7 +270,7 @@
 
       <!-- Calendar (like worker-appointments) -->
       <section id="calendarSection" class="d-none">
-        <div class="card p-3 mt-4">
+        <div class="card calendar-card p-3 mt-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="m-0 text-warning"><i class="mdi mdi-calendar"></i> Appointment Calendar</h5>
           </div>
