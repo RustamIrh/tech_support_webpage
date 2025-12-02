@@ -292,6 +292,11 @@
     border-radius: 18px;
     margin-bottom: 4px;
   }
+  
+  .logout-link{
+  margin-top: 0.75rem;      /* small gap above Log Out */
+}
+
 
   .main-content {
     padding: 16px 12px 32px;
@@ -400,12 +405,15 @@
           <a href="#" id="accountNav"><i class="mdi mdi-account-circle"></i> My Account</a>
           <a href="#" id="billingNav"><i class="mdi mdi-credit-card"></i> Billing</a>
           <a href="#" id="supportNav"><i class="mdi mdi-headset"></i> Support</a>
+
+          <!-- moved INSIDE nav + normal link class -->
+          <a href="client.html" id="logoutLink" class="logout-link">
+            <i class="mdi mdi-logout"></i> Log Out
+          </a>
         </nav>
       </div>
-      <a href="client.html" id="logoutLink" class="sidebar-nav mt-4">
-        <i class="mdi mdi-logout"></i> Log Out
-      </a>
     </aside>
+
 
     <!-- Main -->
     <main class="main-content">
