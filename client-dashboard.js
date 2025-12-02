@@ -24,7 +24,9 @@ import {
   addDoc,
   updateDoc,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch,
+  limit
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // ---------- Config ----------
@@ -47,6 +49,139 @@ let currentUserData = null;
 // ---------- Helpers ----------
 const $ = (id) => document.getElementById(id);
 const fmt = (v) => (v?.toDate?.() ? v.toDate() : new Date(v)).toLocaleString();
+const escapeHtml = (str = "") =>
+  String(str ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+const timeAgo = (value) => {
+  const date = value?.toDate ? value.toDate() : new Date(value);
+  if (!date || Number.isNaN(date.getTime())) return "";
+  const diff = Date.now() - date.getTime();
+  if (diff < 60 * 1000) return "just now";
+  const minutes = Math.floor(diff / (60 * 1000));
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString();
+};
+const notificationIcon = (type = "") => {
+  const key = type.toLowerCase();
+  if (key.includes("appointment") || key.includes("schedule")) return "mdi-calendar-clock";
+  if (key.includes("billing") || key.includes("plan")) return "mdi-credit-card-outline";
+  if (key.includes("security")) return "mdi-shield-check";
+  if (key.includes("device")) return "mdi-laptop";
+  if (key.includes("support") || key.includes("tech")) return "mdi-headset";
+  return "mdi-information-outline";
+};
+function renderNotificationCard(n) {
+  const icon = notificationIcon(n.type || n.category || n.techNeed || n.status || "");
+  const chipLabel = n.techNeed || n.category || n.type;
+  const chip = chipLabel
+    ? `<span class="badge bg-dark text-warning border border-warning-subtle text-uppercase ms-2">${escapeHtml(
+        chipLabel
+      )}</span>`
+    : "";
+  const subtitle = n.subtitle ? `<div class="text-muted small">${escapeHtml(n.subtitle)}</div>` : "";
+  const statusChip = n.status
+    ? `<span class="badge bg-secondary text-uppercase">${escapeHtml(n.status)}</span>`
+    : "";
+  const detail = n.body || n.message || n.detail;
+  const progress = n.progress ? `<div class="notification-meta">Progress: ${escapeHtml(n.progress)}</div>` : "";
+  const safeUrl = typeof n.actionUrl === "string" && /^https?:\/\//i.test(n.actionUrl) ? n.actionUrl : null;
+  const ctaHtml = safeUrl
+    ? `<a href="${safeUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-warning mt-1">${escapeHtml(
+        n.actionLabel || "View details"
+      )}</a>`
+    : "";
+  const timestamp = n.createdAt ? timeAgo(n.createdAt) : "";
+  return `
+    <div class="notification-card ${n.read ? "" : "unread"}" data-id="${n.id}">
+      <i class="mdi ${icon}"></i>
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div class="d-flex flex-column gap-1">
+            <div class="fw-semibold d-flex align-items-center flex-wrap gap-2">
+              ${escapeHtml(n.title || "Tech Support Update")}
+              ${chip}
+            </div>
+            ${subtitle}
+            ${statusChip}
+          </div>
+          <div class="notification-meta text-nowrap">${timestamp}</div>
+        </div>
+        ${detail ? `<p class="small mb-2 text-white-50">${escapeHtml(detail)}</p>` : ""}
+        ${progress}
+        ${ctaHtml}
+      </div>
+    </div>`;
+}
+function initNotificationCenter(uid) {
+  const btn = $("notificationsBtn");
+  const badge = $("notificationBadge");
+  const drawerEl = $("notificationsDrawer");
+  const listEl = $("notificationsList");
+  const emptyEl = $("notificationsEmpty");
+  const markBtn = $("markNotificationsReadBtn");
+  if (!btn || !drawerEl || !listEl || !badge) return;
+  if (btn.dataset.notificationsInit === "1") return;
+  btn.dataset.notificationsInit = "1";
+  const offcanvas = new bootstrap.Offcanvas(drawerEl);
+  let unreadIds = new Set();
+  let marking = false;
+
+  const markUnread = async () => {
+    if (!unreadIds.size || marking) return;
+    marking = true;
+    try {
+      const batch = writeBatch(db);
+      unreadIds.forEach((id) =>
+        batch.update(doc(db, "notifications", id), {
+          read: true,
+          readAt: serverTimestamp()
+        })
+      );
+      await batch.commit();
+      unreadIds.clear();
+    } catch (err) {
+      console.error(err);
+      toast("Failed to update notifications", "danger");
+    } finally {
+      marking = false;
+    }
+  };
+
+  const qNotifs = query(
+    collection(db, "notifications"),
+    where("clientUid", "==", uid),
+    orderBy("createdAt", "desc"),
+    limit(30)
+  );
+
+  onSnapshot(qNotifs, (snap) => {
+    const notifications = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+    unreadIds = new Set(notifications.filter((n) => !n.read).map((n) => n.id));
+    const unreadCount = unreadIds.size;
+    if (unreadCount) {
+      badge.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
+      badge.classList.remove("d-none");
+    } else {
+      badge.classList.add("d-none");
+    }
+
+    if (!notifications.length) {
+      listEl.innerHTML = "";
+      emptyEl?.classList.remove("d-none");
+      return;
+    }
+
+    emptyEl?.classList.add("d-none");
+    listEl.innerHTML = notifications.map(renderNotificationCard).join("");
+  });
+
+  btn.addEventListener("click", () => offcanvas.toggle());
+  drawerEl.addEventListener("shown.bs.offcanvas", () => markUnread());
+  markBtn?.addEventListener("click", () => markUnread());
+}
 
 // ---------- Toasts ----------
 function toast(msg, variant = "success") {
@@ -127,6 +262,7 @@ async function loadClient(uid) {
   $("dedicatedTech").textContent = u.dedicatedTechnicianId
     ? await getTechName(u.dedicatedTechnicianId)
     : "—";
+  initNotificationCenter(uid);
 
   // ---------- Real-time Appointments ----------
   const upTbody = $("upcomingTbody");
