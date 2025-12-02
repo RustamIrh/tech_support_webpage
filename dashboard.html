@@ -53,6 +53,62 @@
 
     .dashboard-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem; }
     .dashboard-header h1 { font-weight: 700; font-size: 1.75rem; color: var(--brand); }
+    .notification-btn {
+      background: rgba(255,255,255,.08);
+      color: #f5d679;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.12);
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .notification-btn:hover {
+      border-color: var(--brand, #d6b35b);
+      box-shadow: 0 0 0 4px rgba(214,179,91,.12);
+    }
+    .notification-badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 999px;
+      padding: 0 6px;
+      font-size: .7rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .notification-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      color: #fff;
+    }
+    .notification-card.unread { border-color: rgba(214,179,91,.45); box-shadow: 0 0 20px rgba(214,179,91,.12); }
+    .notification-card i {
+      font-size: 1.8rem;
+      color: var(--brand, #d6b35b);
+      background: rgba(214,179,91,.12);
+      border-radius: 14px;
+      padding: .4rem;
+      height: 44px;
+      width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .notification-meta { font-size: .8rem; color: #a3a3b2; }
+    .offcanvas-dark {
+      background: radial-gradient(circle at top, rgba(214,179,91,.08), transparent 55%), #08080c;
+      color: #fff;
+    }
 
     .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem; margin-bottom:2rem; }
     .stat-card {
@@ -217,6 +273,10 @@
       <div class="dashboard-header">
         <h1>Welcome back, <span id="userName">Client</span></h1>
         <div class="d-flex align-items-center gap-2">
+          <button class="notification-btn" type="button" id="notificationsBtn" aria-label="Notifications">
+            <i class="mdi mdi-bell-outline fs-4"></i>
+            <span class="notification-badge d-none" id="notificationBadge"></span>
+          </button>
           <button class="btn btn-primary" id="newAppointmentBtn">
             <i class="mdi mdi-plus"></i> New Appointment
           </button>
@@ -278,6 +338,24 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- Notifications Offcanvas -->
+  <div class="offcanvas offcanvas-end offcanvas-dark" tabindex="-1" id="notificationsDrawer" aria-labelledby="notificationsDrawerLabel">
+    <div class="offcanvas-header border-bottom border-secondary">
+      <div>
+        <h5 class="offcanvas-title mb-0" id="notificationsDrawerLabel">Notifications</h5>
+        <small class="text-muted">Live updates from your tech team</small>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-light" type="button" id="markNotificationsReadBtn">Mark all read</button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="offcanvas-body">
+      <div id="notificationsList" class="vstack gap-3"></div>
+      <div id="notificationsEmpty" class="text-center text-muted small mt-4">No updates yet — you’re all caught up.</div>
+    </div>
   </div>
 
   <!-- Toasts -->
