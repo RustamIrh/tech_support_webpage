@@ -14,6 +14,66 @@
     table { width:100%; border-collapse: collapse; }
     th,td{ padding:12px; border-bottom:1px solid var(--border); text-align:left; }
     th{ background: rgba(214,179,91,0.08); color: var(--brand); }
+    /* ===== Mobile layout: worker client detail ===== */
+@media (max-width: 768px) {
+  .wrap {
+    margin: 20px auto;
+    padding: 0 16px 24px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .topbar-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;   /* cards in one column */
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .card {
+    padding: 12px 10px;
+  }
+
+  .card h2,
+  .card h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  .card p {
+    font-size: 0.9rem;
+  }
+
+  .card:last-of-type {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .card:last-of-type table {
+    min-width: 600px;
+    font-size: 0.85rem;
+  }
+
+  .card:last-of-type th,
+  .card:last-of-type td {
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .wrap {
+    padding-inline: 12px;
+  }
+}
+
   </style>
 </head>
 <body>

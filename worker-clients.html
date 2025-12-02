@@ -27,6 +27,47 @@
     .muted { color: var(--muted); }
     .table-wrap { overflow:auto; border-radius: var(--radius); }
     .empty { text-align:center; padding:40px 10px; color:var(--muted); }
+    /* ===== Mobile layout: worker clients ===== */
+@media (max-width: 768px) {
+  .page h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header-actions {
+    width: 100%;
+  }
+
+  .page-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+}
+/* ===== Mobile layout: worker clients ===== */
+@media (max-width: 768px) {
+  .page h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header-actions {
+    width: 100%;
+  }
+
+  .page-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -36,7 +77,7 @@
         <span class="logo">CC</span>
         <span class="brand-text">Click &amp; Care</span>
       </a>
-      <nav class="nav">
+      <nav class="nav nav-worker">
         <ul class="nav-list">
           <li><a href="worker-dashboard.html">Dashboard</a></li>
           <li><a class="active" href="worker-clients.html">Clients</a></li>

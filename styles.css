@@ -859,3 +859,39 @@ textarea {
     font-size: 12px;
   }
 
+/* ===== Mobile header (worker pages + main site) ===== */
+@media (max-width: 400px) {
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,11,15,0.96); /* solid so it doesn't blend into content */
+  }
+
+  .header-inner {
+    height: 56px;                  /* shorter header on phones */
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .brand-text {
+    font-size: 14px;
+  }
+
+  .nav-list {
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .nav-list li {
+    white-space: nowrap;           /* keeps “Dashboard / Appointments / Clients” on one line */
+  }
+}
+/* Always show worker header links on mobile */
+@media (max-width: 920px){
+  .nav.nav-worker .nav-list{
+    display:flex !important;
+    position:static;
+    gap:16px;
+  }
+}
