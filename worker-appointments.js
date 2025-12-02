@@ -163,8 +163,6 @@ function showEventModal(ev, currentUser) {
         <button class="btn" id="btnPending">Set Pending</button>
         <button class="btn" id="btnScheduled">Set Scheduled</button>
         <button class="btn btn-primary" id="btnComplete">Mark Completed</button>
-        <button class="btn" id="btnUploadPdf">Upload PDF</button>
-        <input type="file" id="pdfInput" accept="application/pdf" style="display:none" />
       </div>
     </div>
   `;
@@ -211,22 +209,6 @@ function showEventModal(ev, currentUser) {
     }
   });
 
-  // Upload
-  const input = document.getElementById("pdfInput");
-  document.getElementById("btnUploadPdf")?.addEventListener("click", () => input?.click());
-  input?.addEventListener("change", async (evChange) => {
-    const file = evChange.target.files?.[0];
-    if (!file) return;
-    try {
-      Swal.showLoading();
-      await uploadPdfForAppointment(apptId, file, currentUser);
-      Swal.close();
-      Swal.fire("Uploaded", "PDF note attached to appointment.", "success");
-    } catch (e) {
-      console.error(e);
-      Swal.fire("Upload failed", e.message || "Could not upload file.", "error");
-    }
-  });
 }
 
 // ---- Calendar boot ----
