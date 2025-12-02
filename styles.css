@@ -22,6 +22,8 @@ body{
              radial-gradient(1200px 600px at 110% 10%,rgba(240,210,123,.12),transparent 60%),
              var(--bg);
   line-height:1.55;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
 }
 
 .container{max-width:var(--max); margin-inline:auto; padding:0 20px}
@@ -72,14 +74,46 @@ a{color:inherit; text-decoration:none}
 .nav-toggle span{display:block; width:22px; height:2px; background:#fff; margin:5px 0}
 
 @media (max-width: 920px){
-  .nav-toggle{display:block}
+  .header-inner{
+    height:auto;
+    padding:12px 0 8px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .nav{
+    margin-left:auto;
+  }
+  .nav-toggle{
+    display:block;
+    border:1px solid var(--border);
+    border-radius:12px;
+  }
   .nav-list, .nav-cta{display:none}
+  .nav.open{
+    width:100%;
+    margin-top:8px;
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+    box-shadow:var(--shadow);
+  }
+  .nav.open .nav-toggle{
+    align-self:flex-end;
+  }
   .nav.open .nav-list,
   .nav.open .nav-cta{
-    display:flex; flex-direction:column; gap:16px;
-    position:absolute; top:72px; right:20px; padding:14px; 
-    background:var(--bg-alt); border:1px solid var(--border); border-radius:14px;
-    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    position:static;
+  }
+  .nav.open .nav-list a,
+  .nav.open .nav-cta .btn{
+    width:100%;
   }
 }
 
@@ -205,6 +239,37 @@ a{color:inherit; text-decoration:none}
 @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr}.grid-4{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.grid-3,.grid-4{grid-template-columns:1fr}}
 
+/* ===== Responsive refinements ===== */
+@media (max-width:1024px){
+  .hero-inner{gap:28px}
+}
+@media (max-width:900px){
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:780px){
+  .section{padding:72px 0}
+  .hero{padding:64px 0 24px}
+  .hero-inner{gap:22px}
+  .headline{font-size:44px}
+  .subhead{font-size:16px}
+  .title{font-size:32px}
+}
+@media (max-width:620px){
+  .hero-copy{max-width:520px}
+  .hero-media{max-width:360px; margin-inline:auto; width:100%}
+  .trust-badges{font-size:14px}
+}
+@media (max-width:560px){
+  .container{padding:0 16px}
+  .section{padding:56px 0}
+  .headline{font-size:34px}
+  .hero-actions{flex-direction:column}
+  .hero-actions .btn{width:100%}
+  .glass-card{padding:18px}
+  .trust-badges{flex-direction:column; gap:6px}
+  .feature, .card{padding:18px}
+  .footer-grid{grid-template-columns:1fr}
+}
 
 
 
