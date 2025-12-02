@@ -389,6 +389,23 @@
     margin-bottom: 8px;
   }
 }
+/* ===== Mobile centering for Stripe / Billing modal ===== */
+@media (max-width: 600px) {
+  /* Make the billing modal a true centered sheet on phones */
+  #billingModal .modal-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  /* hard-center it */
+    margin: 0;
+    width: calc(100% - 32px);          /* small margin from screen edges */
+    max-width: 420px;
+  }
+
+  #billingModal .modal-content {
+    border-radius: 18px;
+  }
+}
 
   </style>
 </head>
