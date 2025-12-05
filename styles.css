@@ -188,16 +188,6 @@ a{color:inherit; text-decoration:none}
 @media (max-width:560px){.cards{grid-template-columns:1fr}}
 
 /* Scrollable comparison table wrapper */
-.compare-scroll{
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 18px;
-}
-
-.compare-scroll table{
-  min-width: 720px;   /* ensures all columns fit and user scrolls */
-}
 
 
 /* ===== Pricing ===== */
@@ -311,28 +301,7 @@ a{color:inherit; text-decoration:none}
 .foot-social{
   grid-column: 2;
 }
-  /* Mobile comparison table */
-  .compare-scroll table{
-    min-width: 640px;
-  }
-
-  .compare-scroll th,
-  .compare-scroll td{
-    padding: 10px 8px;
-    font-size: 13px;
-    white-space: nowrap;
-  }
-
-  #compare .title{
-    font-size: 26px;
-  }
-
 }
-
-
-
-
-
 
 @keyframes marquee{
   from{ transform: translateX(var(--start,0px)); }
@@ -359,31 +328,6 @@ a{color:inherit; text-decoration:none}
 }
 /* Bottom CTA spacing remains comfortable */
 .section-head .btn{ margin-top:22px; display:inline-block; }
-
-
-
-
-
-
- /* force single row */
-
-
-
-
-/* Ensure chips/links within marquee have good hit targets */
-
-
-
-
-
-
-
- /* force single row */
-
-
-
-
-
 
 
 /* === Unified background like About/Services === */
@@ -812,10 +756,11 @@ textarea {
     -webkit-overflow-scrolling: touch;
   }
 
-  table {
+  #compare table {
     font-size: 14px;
-    min-width: 600px; /* readable; user can swipe horizontally */
+    min-width: 600px;
   }
+
 }
   /* ===== Compact Mobile Footer ===== */
   footer {
@@ -894,4 +839,73 @@ textarea {
     position:static;
     gap:16px;
   }
+}
+/* ===== Services comparison table (desktop + mobile) ===== */
+
+/* wrapper: lets mobile scroll horizontally */
+#compare .table-wrap{
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* DESKTOP baseline */
+#compare .compare{
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;              /* keeps all columns aligned */
+  min-width: 860px;                 /* wider layout on desktop */
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+#compare .compare th,
+#compare .compare td{
+  padding: 16px 18px;
+  text-align: center;
+  vertical-align: middle;
+  background: linear-gradient(180deg, #14141f, #12121b);
+  border-bottom: 1px solid var(--border);
+}
+
+#compare .compare thead th{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 900;
+  font-size: 19px;
+}
+
+/* first column (Feature) left-aligned + a bit wider */
+#compare .compare th:first-child,
+#compare .compare td:first-child{
+  text-align: left;
+  width: 32%;
+}
+
+/* MOBILE tweaks – keep same grid, just smaller + scrollable */
+@media (max-width: 600px){
+  #compare .compare{
+    font-size: 13px;
+    min-width: 640px;     /* narrower than desktop but still scrolls */
+  }
+
+  #compare .compare th,
+  #compare .compare td{
+    padding: 10px 8px;
+    white-space: nowrap;  /* labels don’t wrap into ugly multi-lines */
+  }
+
+  #compare .title{
+    font-size: 26px;
+  }
+}
+/* Keep comparison table same width as rest of site on DESKTOP */
+#compare .table-wrap{
+  max-width: var(--max);      /* same as .container */
+  margin-inline: auto;        /* center it */
+  padding-inline: 20px;       /* same side padding as .container */
+  width: 100%;
+  overflow-x: auto;           /* still lets mobile scroll */
+  -webkit-overflow-scrolling: touch;
 }
