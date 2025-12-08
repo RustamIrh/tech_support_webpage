@@ -128,13 +128,70 @@ function initNotificationCenter(uid) {
   const offcanvas = new bootstrap.Offcanvas(drawerEl);
   let unreadIds = new Set();
   let marking = false;
+  let snapshotPrimed = false;
+
+  // Soft chime + pulse when a new unread notification arrives
+  let audioCtx;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch {
+    audioCtx = null;
+  }
+  const primeAudio = () => {
+    if (audioCtx?.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+  };
+  document.addEventListener("click", primeAudio, { once: true, capture: true });
+  const playChime = () => {
+    if (!audioCtx) return;
+    primeAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const now = audioCtx.currentTime;
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1046, now); // bright / servicey tone
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.4);
+  };
+  const pulseButton = () => {
+    try {
+      btn.animate(
+        [
+          { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(245,214,121,0.45)" },
+          { transform: "scale(1.08)", boxShadow: "0 0 0 12px rgba(245,214,121,0)" },
+          { transform: "scale(1)" }
+        ],
+        { duration: 420, easing: "ease-out" }
+      );
+    } catch {
+      /* Web Animations API not available — ignore */
+    }
+  };
+  const notifyArrival = () => {
+    playChime();
+    pulseButton();
+  };
+
+  const updateBadge = (count) => {
+    if (count) {
+      badge.textContent = count > 9 ? "9+" : String(count);
+      badge.classList.remove("d-none");
+    } else {
+      badge.classList.add("d-none");
+    }
+  };
 
   const markUnread = async () => {
     if (!unreadIds.size || marking) return;
     marking = true;
+    const ids = Array.from(unreadIds);
     try {
       const batch = writeBatch(db);
-      unreadIds.forEach((id) =>
+      ids.forEach((id) =>
         batch.update(doc(db, "notifications", id), {
           read: true,
           readAt: serverTimestamp()
@@ -142,6 +199,8 @@ function initNotificationCenter(uid) {
       );
       await batch.commit();
       unreadIds.clear();
+      updateBadge(0);
+      listEl.querySelectorAll(".notification-card.unread").forEach((el) => el.classList.remove("unread"));
     } catch (err) {
       console.error(err);
       toast("Failed to update notifications", "danger");
@@ -150,37 +209,61 @@ function initNotificationCenter(uid) {
     }
   };
 
+  const markSingle = async (id) => {
+    if (!id || !unreadIds.has(id)) return;
+    unreadIds.delete(id);
+    updateBadge(unreadIds.size);
+    listEl.querySelector(`.notification-card[data-id="${id}"]`)?.classList.remove("unread");
+    try {
+      await updateDoc(doc(db, "notifications", id), { read: true, readAt: serverTimestamp() });
+    } catch (err) {
+      console.error(err);
+      toast("Failed to mark notification read", "danger");
+    }
+  };
+
   const qNotifs = query(
     collection(db, "notifications"),
     where("clientUid", "==", uid),
     orderBy("createdAt", "desc"),
-    limit(30)
+    limit(10)
   );
 
-  onSnapshot(qNotifs, (snap) => {
-    const notifications = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-    unreadIds = new Set(notifications.filter((n) => !n.read).map((n) => n.id));
-    const unreadCount = unreadIds.size;
-    if (unreadCount) {
-      badge.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
-      badge.classList.remove("d-none");
-    } else {
-      badge.classList.add("d-none");
-    }
+  onSnapshot(
+    qNotifs,
+    (snap) => {
+      const notifications = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      if (snapshotPrimed) {
+        const hasNewUnread = snap.docChanges().some((c) => c.type === "added" && !c.doc.data().read);
+        if (hasNewUnread) notifyArrival();
+      }
+      unreadIds = new Set(notifications.filter((n) => !n.read).map((n) => n.id));
+      updateBadge(unreadIds.size);
 
-    if (!notifications.length) {
-      listEl.innerHTML = "";
-      emptyEl?.classList.remove("d-none");
-      return;
-    }
+      if (!notifications.length) {
+        listEl.innerHTML = "";
+        emptyEl?.classList.remove("d-none");
+        return;
+      }
 
-    emptyEl?.classList.add("d-none");
-    listEl.innerHTML = notifications.map(renderNotificationCard).join("");
-  });
+      emptyEl?.classList.add("d-none");
+      listEl.innerHTML = notifications.map(renderNotificationCard).join("");
+      snapshotPrimed = true;
+    },
+    (err) => {
+      console.error("Notifications feed error", err);
+      toast("Notifications unavailable. Check console for details.", "danger");
+    }
+  );
 
   btn.addEventListener("click", () => offcanvas.toggle());
   drawerEl.addEventListener("shown.bs.offcanvas", () => markUnread());
   markBtn?.addEventListener("click", () => markUnread());
+  listEl.addEventListener("click", (e) => {
+    const card = e.target.closest(".notification-card");
+    if (!card) return;
+    markSingle(card.dataset.id);
+  });
 }
 
 // ---------- Toasts ----------
