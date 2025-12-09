@@ -615,6 +615,23 @@ textarea {
   opacity: 1 !important;
 }
 
+/* Keep day-grid events from spilling across other days */
+.fc .fc-daygrid-event-harness {
+  max-width: 100%;
+}
+.fc .fc-daygrid-event {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.fc .fc-event-main {
+  overflow: hidden;
+}
+
 /* SweetAlert2 popup to match site */
 .swal2-popup {
   background: var(--card, #16161a) !important;
